@@ -1,5 +1,6 @@
 package com.jenu.controller;
 
+import com.jenu.enums.AirlineStatus;
 import com.jenu.payload.request.AirlineRequest;
 import com.jenu.payload.response.AirlineDropdownItem;
 import com.jenu.payload.response.AirlineResponse;
@@ -71,6 +72,30 @@ public class AirlineController {
         airlineService.deleteAirline(id, userId);
         return ResponseEntity.ok(new ApiResponse("Airline deleted successfully"));
 
+    }
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<AirlineResponse> approveAirline(
+            @PathVariable Long id
+    ) throws Exception {
+        return ResponseEntity.ok(airlineService.changeStatusByAdmin(
+                id, AirlineStatus.ACTIVE
+        ));
+    }
+    @PostMapping("/{id}/suspend")
+    public ResponseEntity<AirlineResponse> suspendAirline(
+            @PathVariable Long id
+    ) throws Exception {
+        return ResponseEntity.ok(airlineService.changeStatusByAdmin(
+                id, AirlineStatus.INACTIVE
+        ));
+    }
+    @PostMapping("/{id}/band")
+    public ResponseEntity<AirlineResponse> bannedAirline(
+            @PathVariable Long id
+    ) throws Exception {
+        return ResponseEntity.ok(airlineService.changeStatusByAdmin(
+                id, AirlineStatus.BANNED
+        ));
     }
 
 

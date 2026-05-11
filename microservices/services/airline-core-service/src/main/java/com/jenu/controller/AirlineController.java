@@ -45,7 +45,7 @@ public class AirlineController {
 
     @GetMapping()
     public ResponseEntity<Page<AirlineResponse>> getAllAirlines
-            (PathVariable pathVariable, Pageable pageable)  {
+            ( Pageable pageable)  {
         return ResponseEntity.ok(airlineService.getAllAirlines(pageable));
     }
 

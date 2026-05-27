@@ -1,9 +1,9 @@
 package com.jenu.controller;
 
-import com.zosh.common_lib.enums.SeatAvailabilityStatus;
-import com.zosh.common_lib.payload.request.SeatInstanceRequest;
-import com.zosh.common_lib.payload.response.SeatInstanceResponse;
-import com.zosh.services.service.SeatInstanceService;
+import com.jenu.enums.SeatAvailabilityStatus;
+import com.jenu.payload.request.SeatInstanceRequest;
+import com.jenu.payload.response.SeatInstanceResponse;
+import com.jenu.service.SeatInstanceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

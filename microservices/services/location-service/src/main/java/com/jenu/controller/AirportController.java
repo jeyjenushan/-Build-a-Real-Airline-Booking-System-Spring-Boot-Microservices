@@ -1,5 +1,7 @@
 package com.jenu.controller;
 
+import com.jenu.exception.AirportException;
+import com.jenu.exception.CityException;
 import com.jenu.payload.request.AirportRequest;
 import com.jenu.payload.response.AirportResponse;
 import com.jenu.payload.response.ApiResponse;
@@ -25,6 +27,13 @@ public class AirportController {
                 airportService.createAirport(airportRequest)
         );
     }
+    @PostMapping("/bulk")
+    public ResponseEntity<List<AirportResponse>> createBulkAirports(
+            @Valid @RequestBody List<AirportRequest> requests)
+            throws AirportException, CityException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(airportService.createBulkAirports(requests));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<AirportResponse> getAirportById(

@@ -1,6 +1,7 @@
 package com.jenu.payload.response;
 
 import com.jenu.embeddable.Address;
+import com.jenu.embeddable.Analytics;
 import com.jenu.embeddable.GeoCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +20,9 @@ public class AirportResponse {
     private String iataCode;
     private String name;
     private String detailedName;
-    private String timeZone;
+    private ZoneId timeZone;
     private Address address;
     private CityResponse cityResponse;
     private GeoCode geoCode;
+    private Analytics analytics;
 }

@@ -26,7 +26,7 @@ public class AirportRequest {
     @NotBlank(message = "Airport name is mandatory")
     private String airportName;
 
-    private String timezone;
+    private ZoneId timezone;
 
     @Valid
     private Address address;

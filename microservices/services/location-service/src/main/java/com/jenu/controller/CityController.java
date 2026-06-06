@@ -1,11 +1,14 @@
 package com.jenu.controller;
 
+import com.jenu.exception.OperationNotPermittedException;
+import com.jenu.exception.ResourceNotFoundException;
 import com.jenu.payload.request.CityRequest;
 import com.jenu.payload.response.ApiResponse;
 import com.jenu.payload.response.CityResponse;
 import com.jenu.service.CityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,24 +17,37 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/cities")
+@Slf4j
 public class CityController {
     private final CityService cityService;
 
     @PostMapping
     public ResponseEntity<CityResponse> createCity(
             @Valid @RequestBody CityRequest cityRequest
-    ) throws Exception {
+    ) throws OperationNotPermittedException {
         CityResponse cityResponse=cityService.createCity(cityRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(cityResponse);
     }
 
+    @PostMapping("/bulk")
+    public ResponseEntity<List<CityResponse>> createBulkCities(
+            @Valid @RequestBody List<CityRequest> requests)
+            throws OperationNotPermittedException {
+        List<CityResponse> responses = cityService.createBulkCities(requests);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responses);
+    }
+
+
+
     @GetMapping("/{id}")
     public ResponseEntity<CityResponse> getCityById(
             @PathVariable Long id
-    ) throws Exception {
+    ) throws ResourceNotFoundException {
         CityResponse cityResponse=cityService.getCityById(id);
         return ResponseEntity.status(HttpStatus.CREATED).body(cityResponse);
     }
@@ -42,7 +58,7 @@ public class CityController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
-    ) throws Exception {
+    ) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok(cityService.getAllCities(pageable));
@@ -52,12 +68,12 @@ public class CityController {
     public ResponseEntity<CityResponse> updateCity(
             @PathVariable Long id,
             @Valid @RequestBody CityRequest cityRequest
-    ) throws Exception {
+    ) throws ResourceNotFoundException,OperationNotPermittedException {
         return ResponseEntity.ok(cityService.updateCity(id,cityRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteCity(@PathVariable Long id) throws Exception {
+    public ResponseEntity<ApiResponse> deleteCity(@PathVariable Long id) throws ResourceNotFoundException {
         cityService.deleteCity(id);
         return ResponseEntity.ok(new ApiResponse("City deleted successfully"));
     }

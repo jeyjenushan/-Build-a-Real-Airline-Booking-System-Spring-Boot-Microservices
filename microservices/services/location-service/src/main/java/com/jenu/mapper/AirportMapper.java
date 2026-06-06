@@ -15,6 +15,7 @@ public class AirportMapper {
         return Airport.builder()
                 .address(airportRequest.getAddress())
                 .geoCode(airportRequest.getGeoCode())
+                .timeZoneId(airportRequest.getTimezone() != null ? airportRequest.getTimezone().getId() : null)
                 .iataCode(airportRequest.getIataCode())
                 .name(airportRequest.getAirportName())
                 .build();
@@ -26,8 +27,10 @@ public class AirportMapper {
                 .iataCode(airport.getIataCode())
                 .cityResponse(CityMapper.ConvertToCityResponse(airport.getCity()))
                 .address(airport.getAddress())
+                .analytics(airport.getAnalytics())
+                .detailedName(airport.getDetailedName())
+                .timeZone(airport.getTimeZone())
                 .geoCode(airport.getGeoCode())
-                .iataCode(airport.getIataCode())
                 .name(airport.getName())
                 .id(airport.getId())
                 .build();

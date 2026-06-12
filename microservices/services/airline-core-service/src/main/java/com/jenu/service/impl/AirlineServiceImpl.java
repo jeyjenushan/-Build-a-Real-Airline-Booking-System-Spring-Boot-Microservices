@@ -8,6 +8,7 @@ import com.jenu.payload.response.AirlineDropdownItem;
 import com.jenu.payload.response.AirlineResponse;
 import com.jenu.repository.AirlineRepository;
 import com.jenu.service.AirlineService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,22 +25,22 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     public AirlineResponse createAirline(AirlineRequest airlineRequest, Long ownerId) {
         Airline airline = AirlineMapper.convertAirline(airlineRequest, ownerId);
-        airlineRepository.save(airline);
+        Airline saved=airlineRepository.save(airline);
         return AirlineMapper.convertAirlineResponse(airline);
     }
 
     @Override
-    public AirlineResponse getAirlineByOwner(Long ownerId) throws Exception {
+    public AirlineResponse getAirlineByOwner(Long ownerId)  {
         Airline airline=airlineRepository.findByOwnerId(ownerId).orElseThrow(
-                ()-> new Exception("Airline not found with ownerid "+ownerId)
+                ()-> new EntityNotFoundException("Airline not found with ownerid "+ownerId)
         );
                 return AirlineMapper.convertAirlineResponse(airline);
     }
 
     @Override
-    public AirlineResponse updateAirline(AirlineRequest airlineRequest, Long ownerId) throws Exception {
+    public AirlineResponse updateAirline(AirlineRequest airlineRequest, Long ownerId)  {
         Airline airline=airlineRepository.findByOwnerId(ownerId).orElseThrow(
-                ()-> new Exception("Airline not found with ownerid "+ownerId)
+                ()-> new EntityNotFoundException("Airline not found with ownerid "+ownerId)
         );
         AirlineMapper.updateEntity(airline,airlineRequest);
         Airline savedAirline=airlineRepository.save(airline);
@@ -47,9 +48,9 @@ public class AirlineServiceImpl implements AirlineService {
     }
 
     @Override
-    public AirlineResponse getAirlineById(Long airlineId) throws Exception {
+    public AirlineResponse getAirlineById(Long airlineId)  {
         Airline airline=airlineRepository.findById(airlineId).orElseThrow(
-                ()-> new Exception("Airline not found with id "+airlineId)
+                ()-> new EntityNotFoundException("Airline not found with id "+airlineId)
         );
         return AirlineMapper.convertAirlineResponse(airline);
     }
@@ -60,18 +61,18 @@ public class AirlineServiceImpl implements AirlineService {
     }
 
     @Override
-    public void deleteAirline(Long airlineId, Long ownerId) throws Exception {
+    public void deleteAirline(Long airlineId, Long ownerId)  {
         Airline airline=airlineRepository.findByOwnerId(ownerId).orElseThrow(
-                ()-> new Exception("Airline not found with ownerid "+ownerId)
+                ()-> new EntityNotFoundException("Airline not found with ownerid "+ownerId)
         );
         airlineRepository.delete(airline);
 
     }
 
     @Override
-    public AirlineResponse changeStatusByAdmin(Long airlineId, AirlineStatus status) throws Exception {
+    public AirlineResponse changeStatusByAdmin(Long airlineId, AirlineStatus status)  {
         Airline airline=airlineRepository.findById(airlineId).orElseThrow(
-                ()-> new Exception("Airline not found with id "+airlineId)
+                ()-> new EntityNotFoundException("Airline not found with id "+airlineId)
         );
       airline.setStatus(status);
       Airline savedAirline=airlineRepository.save(airline);

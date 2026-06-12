@@ -28,6 +28,8 @@ public class AirlineRequest {
     private String aliance;
     private String alias;
     private String logoUrl;
+    @NotBlank
+    private String country;
     private AirlineStatus airlineStatus;
     private String website;
     private Long headquartersCityId;

@@ -1,8 +1,10 @@
 package com.jenu.controller;
 
 
+import com.jenu.exception.ResourceNotFoundException;
 import com.jenu.payload.request.AircraftRequest;
 import com.jenu.payload.response.AircraftResponse;
+import com.jenu.repository.AirlineRepository;
 import com.jenu.service.AircraftService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ public class AircraftController {
     public ResponseEntity<AircraftResponse> createAircraft(
          @Valid @RequestBody AircraftRequest aircraftRequest,
          @RequestHeader("X-User-Id") Long userId
-         ) throws Exception {
+         )  {
         AircraftResponse aircraftResponse = aircraftService.createAircraft(aircraftRequest,userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(aircraftResponse);
@@ -31,14 +33,14 @@ public class AircraftController {
     @GetMapping("/{id}")
     public ResponseEntity<AircraftResponse> getAircraft(
             @PathVariable Long id
-    ) throws Exception {
+    ) throws ResourceNotFoundException {
         return ResponseEntity.ok(aircraftService.getAircraft(id));
     }
 
     @GetMapping
     public ResponseEntity<List<AircraftResponse>> getAllAircrafts(
             @RequestHeader("X-User-Id") Long userId
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(aircraftService.listAllAircraftByOwnerId(userId));
     }
 
@@ -47,14 +49,14 @@ public class AircraftController {
             @PathVariable Long id,
             @RequestBody AircraftRequest aircraftRequest,
             @RequestHeader("X-User-Id") Long userId
-    ) throws Exception {
+    ) throws ResourceNotFoundException {
         return ResponseEntity.ok(aircraftService.updateAircraft(id,aircraftRequest,userId));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<AircraftResponse> deleteAircraft(
-            @PathVariable Long id,     @RequestHeader("X-User-Id") Long userId
-    ) throws Exception {
+            @PathVariable Long id,@RequestHeader("X-User-Id") Long userId
+    ) throws ResourceNotFoundException {
         aircraftService.deleteAircraft(id,userId);
         return ResponseEntity.noContent().build();
     }

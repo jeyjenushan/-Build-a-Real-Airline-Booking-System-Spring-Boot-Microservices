@@ -18,29 +18,33 @@ public class AircraftResponse {
     private String code;
     private String model;
     private String manufacturer;
-    private int seatingCapacity;
-    private int economySeats;
-    private int premiumEconomySeats;
-    private int businessSeats;
-    private int firstClassSeats;
-    private int rangeKm;
-    private int cruisingSpeedKmh;
-    private int maxAltitudeFt;
-    private int yearOfManufacture;
+    private Integer seatingCapacity;
+    private Integer economySeats;
+    private Integer premiumEconomySeats;
+    private Integer businessSeats;
+    private Integer firstClassSeats;
+    private Integer rangeKm;
+    private Integer cruisingSpeedKmh;
+    private Integer maxAltitudeFt;
+    private Integer yearOfManufacture;
     private LocalDate registrationDate;
     private LocalDate nextMaintenanceDate;
     private AirCraftStatus status;
     private Boolean isAvailable;
+
     private Long airlineId;
     private String airlineName;
     private String airlineIataCode;
+
     private  Long currentAirportId;
     private Long currentAirportCity;
     private Long currentAirportCode;
     private Long currentAirportName;
+
     private int totalSeats;
     private Boolean requiresMaintenance;
     private Boolean isOperational;
+
     private Instant createdAt;
     private Instant updatedAt;
 

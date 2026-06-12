@@ -20,10 +20,14 @@ public class AirlineResponse {
     private String icaoCode;
     private String name;
     private String alias;
+    private String country;
     private String logoUrl;
     private String website;
     private String alliance;
     private AirlineStatus status;
+
+
+
     private Instant createdAt;
     private Instant updatedAt;
     private Long ownerId;

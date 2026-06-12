@@ -2,12 +2,16 @@ package com.jenu.model;
 
 import com.jenu.enums.AirCraftStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -17,57 +21,74 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "aircrafts")
 public class Aircraft {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true, nullable = false)
+    @NotBlank(message = "Aircraft code is required")
+    @Column(nullable = false, unique = true, name = "aircraft_code", length = 20)
     private String code;
 
+    @NotBlank(message = "Aircraft model is required")
+    @Column(nullable = false, name = "model", length = 50)
     private String model;
 
+    @NotBlank(message = "Manufacturer is required")
     @Column(nullable = false, length = 50)
     private String manufacturer;
 
+    @NotNull(message = "Seating capacity is required")
+    @Positive(message = "Seating capacity must be positive")
     @Column(nullable = false)
-    private int seatingCapacity;
+    private Integer seatingCapacity;
 
     @Column(name = "economy_seats")
-    private int economySeats=0;
+    private Integer economySeats;
 
     @Column(name = "premium_economy_seats")
-    private int premiumEconomySeats=0;
+    private Integer premiumEconomySeats;
 
     @Column(name = "business_seats")
-    private int businessSeats=0;
+    private Integer businessSeats;
 
     @Column(name = "first_class_seats")
-    private int firstClassSeats=0;
+    private Integer firstClassSeats;
 
-    private int rangeKm;
+    @Positive(message = "Range must be positive")
+    @Column(name = "range_km")
+    private Integer rangeKm;
 
     @Column(name = "cruising_speed_kmh")
-    private int cruisingSpeedKmh;
+    private Integer cruisingSpeedKmh;
 
-    private int maxAltitudeFt;
+    @Column(name = "max_altitude_ft")
+    private Integer maxAltitudeFt;
 
     @Column(name = "year_of_manufacture")
-    private int yearOfManufacture;
+    private Integer yearOfManufacture;
 
+    @Column(name = "registration_date")
     private LocalDate registrationDate;
 
+    @Column(name = "next_maintenance_date")
     private LocalDate nextMaintenanceDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status",nullable = false,length = 20)
     private AirCraftStatus status=AirCraftStatus.ACTIVE;
 
+    @Column(name = "is_available", nullable = false)
     private Boolean isAvailable=true;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "airline_id", nullable = false)
+    @NotNull(message = "Airline is required")
     private Airline airline;
 
+    @Column(name = "current_airport_id")
     private Long currentAirportId;
 
     @CreatedDate
@@ -78,18 +99,22 @@ public class Aircraft {
     @Column(name="updated_at",nullable = false)
     private Instant updatedAt;
 
-    public int getTotalSeats(){
-        return economySeats+premiumEconomySeats+businessSeats+firstClassSeats;
+    public Integer getTotalSeats() {
+        return (economySeats != null ? economySeats : 0) +
+                (premiumEconomySeats != null ? premiumEconomySeats : 0) +
+                (businessSeats != null ? businessSeats : 0) +
+                (firstClassSeats != null ? firstClassSeats : 0);
     }
 
-    public boolean isOperational(){
+    public boolean isOperational() {
         return AirCraftStatus.ACTIVE.equals(status)
                 && Boolean.TRUE.equals(isAvailable);
     }
 
-    public boolean requiresMaintenance(){
-        return nextMaintenanceDate!=null
-                && nextMaintenanceDate.isBefore(LocalDate.now().plusWeeks(2));
+    public boolean requiresMaintenance() {
+        return nextMaintenanceDate != null
+                && nextMaintenanceDate.isBefore(
+                LocalDate.now().plusWeeks(2));
     }
 
 

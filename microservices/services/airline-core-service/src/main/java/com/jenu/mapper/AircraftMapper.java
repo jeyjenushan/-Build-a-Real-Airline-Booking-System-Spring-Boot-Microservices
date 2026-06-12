@@ -65,7 +65,7 @@ public class AircraftMapper {
 
     }
 
-    public static void updateEntity(Aircraft aircraft,AircraftRequest aircraftRequest){
+    public static void updateEntity(Aircraft aircraft,AircraftRequest aircraftRequest,Airline airline){
         if(aircraftRequest == null || aircraft==null)return;
 
         aircraft.setCode(aircraftRequest.getCode());
@@ -84,6 +84,7 @@ public class AircraftMapper {
         aircraft.setNextMaintenanceDate(aircraftRequest.getNextMaintenanceDate());
         aircraft.setStatus(aircraftRequest.getStatus());
         aircraft.setIsAvailable(aircraftRequest.getIsAvailable());
+        aircraft.setAirline(airline);
         aircraft.setCurrentAirportId(aircraftRequest.getCurrentAirportId());
 
     }

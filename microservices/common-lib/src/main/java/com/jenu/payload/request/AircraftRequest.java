@@ -27,31 +27,31 @@ public class AircraftRequest {
 
     @NotNull(message = "Seating capacity is required")
     @Positive(message = "Seating capacity must be positive")
-    private int seatingCapacity;
+    private Integer seatingCapacity;
 
     @Positive(message = "Economy seats  must be positive")
-    private int economySeats;
+    private Integer economySeats;
 
     @Positive(message = "Premium economy seats  must be positive")
-    private int premiumEconomySeats;
+    private Integer premiumEconomySeats;
 
     @Positive(message = "Business seats  must be positive")
-    private int businessSeats;
+    private Integer businessSeats;
 
     @Positive(message = "First class seats  must be positive")
-    private int firstClassSeats;
+    private Integer firstClassSeats;
 
     @Positive(message = "Range  must be positive")
-    private int rangeKm;
+    private Integer rangeKm;
 
     @Positive(message = "Cruising speed  must be positive")
-    private int cruisingSpeedKmh;
+    private Integer cruisingSpeedKmh;
 
     @Positive(message = "Maximum altitude must be positive")
-    private int maxAltitudeFt;
+    private Integer maxAltitudeFt;
 
     @Positive(message = "Year of manufacture must be positive")
-    private int yearOfManufacture;
+    private Integer yearOfManufacture;
 
     private LocalDate registrationDate;
     private LocalDate nextMaintenanceDate;

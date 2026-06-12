@@ -9,7 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
@@ -18,6 +20,8 @@ import java.time.Instant;
 @NoArgsConstructor
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "airlines")
 public class Airline {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,13 +33,13 @@ public class Airline {
     @Column(nullable = false,unique = true)
     private String icaoCode;
 
-    @Column(nullable = false,unique = true)
-    private Long ownerId;
-
     @Column(nullable = false)
     private String name;
 
     private String alias;
+
+    @Column(nullable = false)
+    private String country;
 
     private String logoUrl;
 
@@ -46,14 +50,18 @@ public class Airline {
 
     private String alliance;
 
+    @Column(name = "headquarters_city_id")
     private Long headquartersCityId;
 
     @Embedded
     private Support support;
 
+    @Column(nullable = false,unique = true)
+    private Long ownerId;
+
     private Long updatedById;
 
-    @CreationTimestamp
+    @CreatedDate
     @Column(updatable = false,nullable = false)
     private Instant createdAt;
 

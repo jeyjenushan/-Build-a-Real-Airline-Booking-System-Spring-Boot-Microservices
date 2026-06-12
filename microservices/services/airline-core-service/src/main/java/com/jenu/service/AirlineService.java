@@ -12,11 +12,11 @@ import java.util.List;
 public interface AirlineService {
 
     AirlineResponse createAirline(AirlineRequest airlineRequest,Long ownerId);
-    AirlineResponse getAirlineByOwner(Long ownerId) throws Exception;
-    AirlineResponse updateAirline(AirlineRequest airlineRequest,Long ownerId) throws Exception;
-    AirlineResponse getAirlineById(Long airlineId) throws Exception;
+    AirlineResponse getAirlineByOwner(Long ownerId) ;
+    AirlineResponse updateAirline(AirlineRequest airlineRequest,Long ownerId) ;
+    AirlineResponse getAirlineById(Long airlineId) ;
     Page<AirlineResponse> getAllAirlines(Pageable pageable);
-    void deleteAirline(Long airlineId,Long ownerId) throws Exception;
-    AirlineResponse changeStatusByAdmin(Long airlineId, AirlineStatus status) throws Exception;
+    void deleteAirline(Long airlineId,Long ownerId) ;
+    AirlineResponse changeStatusByAdmin(Long airlineId, AirlineStatus status) ;
     List<AirlineDropdownItem>getAirlineDropdown();
 }

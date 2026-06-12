@@ -1,5 +1,6 @@
 package com.jenu.service.impl;
 
+import com.jenu.exception.UserException;
 import com.jenu.mapper.UserMapper;
 import com.jenu.model.User;
 import com.jenu.payload.dto.UserDto;
@@ -16,18 +17,18 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     @Override
-    public UserDto getUserByEmail(String email) throws Exception {
+    public UserDto getUserByEmail(String email) throws UserException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new Exception("User not found with email");
+            throw new UserException("User not found with email");
         }
         return UserMapper.ConvertToUserDto(user);
     }
 
     @Override
-    public UserDto getUserById(Long id) throws Exception {
+    public UserDto getUserById(Long id) throws UserException {
         return UserMapper.ConvertToUserDto(userRepository.findById(id).orElseThrow(
-                ()->new Exception("User not found")
+                ()->new UserException("User not found")
         ));
     };
 

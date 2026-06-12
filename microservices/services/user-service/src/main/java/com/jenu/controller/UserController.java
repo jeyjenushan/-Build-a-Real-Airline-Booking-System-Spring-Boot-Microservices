@@ -1,5 +1,6 @@
 package com.jenu.controller;
 
+import com.jenu.exception.UserException;
 import com.jenu.payload.dto.UserDto;
 import com.jenu.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<UserDto>> getUsers(){
+    public ResponseEntity<List<UserDto>> getUsers() throws UserException {
 
         List<UserDto> users=userService.getAllUsers();
         return ResponseEntity.ok(users);

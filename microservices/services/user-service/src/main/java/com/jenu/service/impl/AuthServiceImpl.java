@@ -1,6 +1,7 @@
 package com.jenu.service.impl;
 import com.jenu.configuration.JwtProvider;
 import com.jenu.enums.UserRole;
+import com.jenu.exception.UserException;
 import com.jenu.mapper.UserMapper;
 import com.jenu.model.User;
 import com.jenu.payload.dto.UserDto;
@@ -10,6 +11,7 @@ import com.jenu.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,13 +29,13 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse signup(UserDto userDto) throws Exception {
+    public AuthResponse signup(UserDto userDto) throws UserException {
         User existUser = userRepository.findByEmail(userDto.getEmail());
         if (existUser != null) {
-            throw  new Exception("email already Registered");
+            throw  new UserException("email already Registered");
         }
         if(userDto.getUserRole()== UserRole.ROLE_SYSTEM_ADMIN){
-            throw  new Exception("You cannot register a system admin");
+            throw  new UserException("You cannot register a system admin");
         }
 
 
@@ -44,26 +46,30 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(userDto.getFullName())
                 .role(userDto.getUserRole())
                 .lastLogin(LocalDateTime.now())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
 
         User savedUser=userRepository.save(newUser);
         Authentication authentication=
                 new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(authentication);
         String jwt= jwtProvider.generateToken(authentication, savedUser.getId());
         AuthResponse authResponse=new AuthResponse();
         authResponse.setJwtToken(jwt);
         authResponse.setUser(UserMapper.ConvertToUserDto(savedUser));
-        authResponse.setTitle("Welcome"+savedUser.getFullName());
+        authResponse.setTitle("Welcome "+savedUser.getFullName());
         authResponse.setMessage("Registered Successfully");
 
         return authResponse;
     }
 
     @Override
-    public AuthResponse login(String email, String password) throws Exception {
+    public AuthResponse login(String email, String password) throws UserException {
         Authentication authentication=authentication(email,password);
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(authentication);
         User user=userRepository.findByEmail(email);
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
@@ -71,16 +77,16 @@ public class AuthServiceImpl implements AuthService {
         AuthResponse authResponse=new AuthResponse();
         authResponse.setJwtToken(jwt);
         authResponse.setMessage("Login Successfully");
-        authResponse.setTitle("Welcome"+user.getFullName());
+        authResponse.setTitle("Welcome Back "+user.getFullName());
         authResponse.setUser(UserMapper.ConvertToUserDto(user));
         return authResponse;
     }
 
-    private Authentication authentication(String email, String password) throws Exception {
+    private Authentication authentication(String email, String password) throws UserException {
         UserDetails userDetails=customUserDetailsService.loadUserByUsername(email);
 
         if(!passwordEncoder.matches(password,userDetails.getPassword())){
-            throw new Exception("Wrong password");
+            throw new UserException("Wrong password");
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

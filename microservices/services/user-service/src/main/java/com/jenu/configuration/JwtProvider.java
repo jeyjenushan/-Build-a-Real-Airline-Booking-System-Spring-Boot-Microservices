@@ -26,14 +26,15 @@ public class JwtProvider {
     public String generateToken(Authentication authentication,Long userId) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String roles=popularAuthorities(authorities);
-        String jwt= Jwts.builder().issuedAt(new Date())
+        return Jwts.builder()
+                .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+86400000))
                 .claim("email",authentication.getName())
                 .claim("authorities",roles)
                 .claim("userid",userId)
                 .signWith(secretKey)
                 .compact();
-        return jwt;
+
 
 
     }

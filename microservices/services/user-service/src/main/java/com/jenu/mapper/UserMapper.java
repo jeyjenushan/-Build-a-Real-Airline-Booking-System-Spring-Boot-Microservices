@@ -20,9 +20,9 @@ public class UserMapper {
                 .id(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
+                .phoneNumber(String.valueOf(user.getPhoneNumber()))
                 .userRole(user.getRole())
                 .lastLogin(user.getLastLogin())
-                .phoneNumber(String.valueOf(user.getPhoneNumber()))
                 .build();
     }
     public static List<UserDto> toUserDtoList(List<User> users) {

@@ -6,11 +6,15 @@ import com.jenu.payload.request.FareRequest;
 import com.jenu.payload.response.FareResponse;
 import com.jenu.repository.FareRepository;
 import com.jenu.service.FareService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,9 +23,9 @@ public class FareServiceImpl implements FareService {
     private final FareRepository fareRepository;
 
     @Override
-    public FareResponse createFare(FareRequest fareRequest) throws Exception {
+    public FareResponse createFare(FareRequest fareRequest)  {
         if(fareRepository.existsByFlightIdAndCabinClassIdAndName(fareRequest.getFlightId(), fareRequest.getCabinClassId(), fareRequest.getName())){
-            throw new Exception("fare already exist with provided name");
+            throw new EntityNotFoundException("Fare '" + fareRequest.getName() + "' already exists for this flight and cabin class");
         }
         Fare fare=FareMapper.toEntity(fareRequest);
         Fare savedFare=fareRepository.save(fare);
@@ -29,16 +33,37 @@ public class FareServiceImpl implements FareService {
     }
 
     @Override
-    public FareResponse getFareById(Long id) throws Exception {
+    public List<FareResponse> createFares(List<FareRequest> requests) {
+        // Single DB call: fetch composite keys for all relevant flightIds
+        Set<Long> flightIds = requests.stream()
+                .map(FareRequest::getFlightId)
+                .collect(Collectors.toSet());
+        Set<String> existingKeys = fareRepository.findExistingFareKeys(flightIds);
+
+        List<Fare> toSave = requests.stream()
+                .filter(req -> !existingKeys.contains(
+                        req.getFlightId() + ":" + req.getCabinClassId() + ":" + req.getName()))
+                .map(FareMapper::toEntity)
+                .collect(Collectors.toList());
+
+        return fareRepository.saveAll(toSave).stream()
+                .map(FareMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FareResponse getFareById(Long id)  {
         Fare fare=fareRepository.findById(id)
                 .orElseThrow(
-                        ()->new Exception("Fare not found with given id")
+                        ()->new EntityNotFoundException("Fare not found with given id")
                 );
         return FareMapper.toResponse(fare);
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FareResponse> getFaresByFlightIdAndCabinClassId(Long flightId, Long cabinClassId) {
         return fareRepository.findByFlightIdAndCabinClassId(flightId, cabinClassId)
                 .stream()
@@ -46,24 +71,24 @@ public class FareServiceImpl implements FareService {
     }
 
     @Override
-    public FareResponse updateFareById(Long id, FareRequest fareRequest) throws Exception {
+    public FareResponse updateFareById(Long id, FareRequest fareRequest)   {
         Fare fare=fareRepository.findById(id)
                 .orElseThrow(
-                        ()->new Exception("Fare not found with given id")
+                        ()->new EntityNotFoundException("Fare not found with given id")
                 );
         if(fareRepository.existsByFlightIdAndCabinClassIdAndNameAndIdNot
                 (fareRequest.getFlightId(), fareRequest.getCabinClassId(), fareRequest.getName(),id )){
-            throw new Exception("fare already exist with provided name");
+            throw new EntityNotFoundException("fare already exist with provided name");
         }
         FareMapper.updateEntity(fareRequest,fare);
         return FareMapper.toResponse(fareRepository.save(fare));
     }
 
     @Override
-    public void deleteFareById(Long id) throws Exception {
+    public void deleteFareById(Long id)  {
         Fare fare=fareRepository.findById(id)
                 .orElseThrow(
-                        ()->new Exception("Fare not found with given id")
+                        ()->new IllegalArgumentException("Fare not found with given id")
                 );
         fareRepository.delete(fare);
 
@@ -96,6 +121,20 @@ public class FareServiceImpl implements FareService {
 
 
         return result;
+    }
+
+    @Override
+    public FareResponse getLowestFareForFlightAndCabin(Long flightId, Long cabinClassId) {
+        List<Fare> fares = fareRepository.findByFlightIdAndCabinClassId(
+                flightId,
+                cabinClassId
+        );
+
+        Fare lowestFare = fares.stream()
+                .min(Comparator.comparingDouble(Fare::getTotalPrice))
+                .orElse(null);
+
+        return FareMapper.toResponse(lowestFare);
     }
 
     @Override

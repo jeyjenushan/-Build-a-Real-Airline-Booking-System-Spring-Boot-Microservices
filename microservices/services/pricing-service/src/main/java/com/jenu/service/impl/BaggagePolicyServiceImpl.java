@@ -11,6 +11,7 @@ import com.jenu.service.BaggagePolicyService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ public class BaggagePolicyServiceImpl implements BaggagePolicyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BaggagePolicyResponse getBaggagePolicyById(Long id) {
         BaggagePolicy policy = baggagePolicyRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(

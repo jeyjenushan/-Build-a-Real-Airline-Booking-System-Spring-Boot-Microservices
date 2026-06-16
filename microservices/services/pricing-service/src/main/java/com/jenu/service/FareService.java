@@ -8,17 +8,29 @@ import java.util.List;
 import java.util.Map;
 
 public interface FareService {
-    FareResponse createFare(FareRequest fareRequest) throws Exception;
-    FareResponse getFareById(Long id) throws Exception;
+    FareResponse createFare(FareRequest fareRequest) ;
+    List<FareResponse> createFares(List<FareRequest> requests);
+    FareResponse getFareById(Long id) ;
     List<FareResponse> getFaresByFlightIdAndCabinClassId(
             Long flightId, Long cabinClassId
     );
-    FareResponse updateFareById(Long id, FareRequest fareRequest) throws Exception;
-    void deleteFareById(Long id) throws Exception;
+    FareResponse updateFareById(Long id, FareRequest fareRequest) ;
+    void deleteFareById(Long id)  ;
     List<Fare> getFares();
+    /**
+     * Returns the cheapest fare per flight for the given cabin class.
+     * Used by flight-ops-service to apply price range filtering during search
+     * without a cross-service join.
+     *
+     * @param flightIds  flight IDs to query (matches FlightInstance.flight.id)
+     * @param cabinClassId the requested cabin class
+     * @return map of flightId → cheapest FareResponse for that cabin class;
+     *         flights with no fare for the given cabin class are absent from the map
+     */
     Map<Long,FareResponse> getLowestFarePerFlight(
             List<Long> flightIds,Long cabinClassId
     );
+    FareResponse getLowestFareForFlightAndCabin(Long flightId, Long cabinClassId);
 
     Map<Long,FareResponse> getFaresByIds(
             List<Long> ids

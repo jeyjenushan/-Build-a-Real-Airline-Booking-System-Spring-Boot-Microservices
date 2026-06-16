@@ -11,6 +11,7 @@ import com.jenu.service.FareRulesService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ public class FareRulesServiceImpl implements FareRulesService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public FareRulesResponse getFareRulesById(Long id) {
         FareRules fareRules = fareRulesRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -46,6 +48,7 @@ public class FareRulesServiceImpl implements FareRulesService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public FareRulesResponse getFareRulesByFareId(Long fareId) {
         FareRules fareRules = fareRulesRepository.findByFareId(fareId)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -54,6 +57,7 @@ public class FareRulesServiceImpl implements FareRulesService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<FareRulesResponse> getAllFareRulesByAirlineId(Long airlineId) {
         return fareRulesRepository.findByAirlineId(airlineId).stream()
                 .map(FareRulesMapper::toResponse)

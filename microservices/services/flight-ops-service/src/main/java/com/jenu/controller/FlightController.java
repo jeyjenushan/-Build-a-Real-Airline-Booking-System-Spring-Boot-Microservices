@@ -22,20 +22,46 @@ public class FlightController {
     public ResponseEntity<FlightResponse> createFlight(
             @Valid @RequestBody FlightRequest flightRequest,
             @RequestHeader("Airline-Id") Long airlineId
-            ) throws Exception {
+            )  {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(flightService.createFlight(airlineId,flightRequest));
 
     }
 
+    /*
+    * Create Flights it need to be interconnected by other services
+    *     @PostMapping("/bulk")
+    public ResponseEntity<List<FlightResponse>> createFlights(
+            @RequestHeader("X-User-Id") Long userId,
+            @Valid @RequestBody List<FlightRequest> requests) throws AirportException {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(flightService.createFlights(userId, requests));
+    }
+    *
+    * */
+
+    /*
+    * GetFlightsById this method also we need for the interconnection so once interservice connection start to work on that
+    *     @PostMapping("/batch")
+    public ResponseEntity<Map<Long, FlightResponse>> getFlightsByIds(@RequestBody List<Long> ids) {
+        return ResponseEntity.ok(flightService.getFlightsByIds(ids));
+    }
+    * */
+
     @GetMapping("/{id}")
     public ResponseEntity<FlightResponse> getFlightById(
             @PathVariable Long id
-    ) throws Exception {
+    )  {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(flightService.getFlightById(id));
 
     }
+    @GetMapping("/number/{flightNumber}")
+    public ResponseEntity<FlightResponse> getFlightByNumber(
+            @PathVariable String flightNumber)  {
+        return ResponseEntity.ok(flightService.getFlightByNumber(flightNumber));
+    }
+
 
     @GetMapping("/airline")
     public ResponseEntity<Page<FlightResponse>> getFlightsByAirline(
@@ -43,7 +69,7 @@ public class FlightController {
             @RequestParam(required = false) Long departureAirportId,
             @RequestParam(required = false)Long arrivalAirportId,
             Pageable pageable
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(
                 flightService.getFlightsByAirline(
                         airlineId,departureAirportId,arrivalAirportId,pageable
@@ -55,7 +81,7 @@ public class FlightController {
     public ResponseEntity<FlightResponse> updateFlight(
             @PathVariable Long id,
             @RequestBody FlightRequest request
-    ) throws Exception {
+    )   {
         return ResponseEntity.ok(flightService.updateFlight(id,request));
 
     }
@@ -64,7 +90,7 @@ public class FlightController {
     public ResponseEntity<FlightResponse> changeStatus(
             @PathVariable Long id,
             @RequestParam FlightStatus status
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(flightService.changeStatus(id,status));
 
     }
@@ -73,7 +99,7 @@ public class FlightController {
     public ResponseEntity<Void> deleteFlight(
             @RequestHeader("Airline-Id") Long airlineId,
             @PathVariable Long id
-    ) throws Exception {
+    )  {
        flightService.deleteFlight(airlineId,id);
        return ResponseEntity.noContent().build();
 

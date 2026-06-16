@@ -14,6 +14,7 @@ import com.jenu.repository.FlightRepository;
 import com.jenu.repository.FlightScheduleRepository;
 import com.jenu.service.FlightInstanceService;
 import com.jenu.service.FlightScheduleService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,10 +39,10 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
 
         Flight flight=flightRepository.findById(flightScheduleRequest.getFlightId())
                 .orElseThrow(
-                        () -> new Exception("Flight not found with given id")
+                        () -> new EntityNotFoundException("Flight not found with given id")
                 );
         if(flightScheduleRequest.getEndDate().isBefore(flightScheduleRequest.getStartDate())){
-            throw new Exception("End date is before start date");
+            throw new IllegalArgumentException("End date is before start date");
         }
         FlightSchedule flightSchedule= FlightScheduleMapper.convertToFlightSchedule(flightScheduleRequest,flight);
         FlightSchedule savedFlightSchedule=flightScheduleRepository.save(flightSchedule);
@@ -84,12 +85,11 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
     }
 
     @Override
-    public FlightScheduleResponse getFlightSchedule(Long flightScheduleId) throws Exception {
+    public FlightScheduleResponse getFlightSchedule(Long flightScheduleId)  {
         FlightSchedule flightSchedule=flightScheduleRepository
                 .findById(flightScheduleId)
-                .orElseThrow(
-                        ()->new Exception("Flight schedule not found with id")
-                );
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Flight schedule not found with id: " + flightScheduleId));;
         return convertFlightScheduleToFlightScheduleResponse(flightSchedule);
     }
 
@@ -102,22 +102,22 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
     }
 
     @Override
-    public void deleteFlightSchedule(Long flightScheduleId) throws Exception {
+    public void deleteFlightSchedule(Long flightScheduleId)  {
         FlightSchedule flightSchedule=flightScheduleRepository
                 .findById(flightScheduleId)
                 .orElseThrow(
-                        ()->new Exception("Flight schedule not found with id")
+                        ()->new EntityNotFoundException("Flight schedule not found with id")
                 );
         flightScheduleRepository.delete(flightSchedule);
 
     }
 
     @Override
-    public FlightScheduleResponse updateFlightSchedule(Long id, FlightScheduleRequest flightScheduleRequest) throws Exception {
+    public FlightScheduleResponse updateFlightSchedule(Long id, FlightScheduleRequest flightScheduleRequest)  {
         FlightSchedule flightSchedule=flightScheduleRepository
                 .findById(id)
                 .orElseThrow(
-                        ()->new Exception("Flight schedule not found with id")
+                        ()->new EntityNotFoundException("Flight schedule not found with id")
                 );
         FlightScheduleMapper.updateEntity(flightScheduleRequest,flightSchedule);
         FlightSchedule savedFlightSchedule=flightScheduleRepository.save(flightSchedule);

@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 
 @Repository
@@ -24,7 +26,10 @@ and (:arrId is null or f.arrivalAirportId = :arrId)
                                  @Param("depId") Long depId,
                                  @Param("arrId") Long arrId,
                                  Pageable pageable);
+    @Query("SELECT f.flightNumber FROM Flight f WHERE f.flightNumber IN :numbers")
+    Set<String> findExistingFlightNumbers(@Param("numbers") Collection<String> numbers);
     Optional<Flight> findByAirlineIdAndId(Long airlineId, Long id);
     boolean existsByFlightNumber(String flightNumber);
     boolean existsByFlightNumberAndIdNot(String flightNumber, Long depId);
+    Optional<Flight> findByFlightNumber(String flightNumber);
 }

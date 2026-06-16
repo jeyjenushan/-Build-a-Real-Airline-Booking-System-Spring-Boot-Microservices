@@ -10,8 +10,8 @@ public interface FlightScheduleService {
     FlightScheduleResponse createFlightSchedule(
             Long userId,
             FlightScheduleRequest flightScheduleRequest) throws Exception;
-    FlightScheduleResponse getFlightSchedule(Long flightScheduleId) throws Exception;
+    FlightScheduleResponse getFlightSchedule(Long flightScheduleId) ;
     List<FlightScheduleResponse> getAllFlightSchedulesByAirline(Long userId);
-    void deleteFlightSchedule(Long flightScheduleId) throws Exception;
-    FlightScheduleResponse updateFlightSchedule(Long id, FlightScheduleRequest flightScheduleRequest) throws Exception;
+    void deleteFlightSchedule(Long flightScheduleId) ;
+    FlightScheduleResponse updateFlightSchedule(Long id, FlightScheduleRequest flightScheduleRequest) ;
 }

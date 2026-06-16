@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,17 +26,32 @@ public class FlightInstanceController {
     public ResponseEntity<FlightInstanceResponse> createFlightInstance(
            @Valid @RequestBody FlightInstanceRequest flightInstanceRequest,
             @RequestHeader("X-Airline-Id") Long airlineId
-    ) throws Exception {
+    )  {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(flightInstanceService.createFlightInstance(airlineId,flightInstanceRequest));
     }
 
 
+    /*
+    *     @PostMapping("/batch")
+    public ResponseEntity<Map<Long, FlightInstanceResponse>> getFlightInstancesByIds(@RequestBody List<Long> ids) {
+        return ResponseEntity.ok(flightInstanceService.getFlightInstancesByIds(ids));
+    }
+    *
+    * */
+
+
+
     @GetMapping("/{id}")
     public ResponseEntity<FlightInstanceResponse> getFlightInstanceById (
             @PathVariable Long id
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(flightInstanceService.getFlightInstanceById(id));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<FlightInstanceResponse>> getFlightInstanceById()  {
+        return ResponseEntity.ok(flightInstanceService.getFlightInstances());
     }
 
     @GetMapping
@@ -46,7 +62,7 @@ public class FlightInstanceController {
             @RequestParam(required = false) Long flightId,
             @RequestParam(required = false)LocalDate onDate,
             Pageable pageable
-            ) throws Exception {
+            )  {
         return
                 ResponseEntity.ok(flightInstanceService.getByAirlineId(
                 airlineId,departureAirportId,arrivalAirportId,flightId,onDate,pageable
@@ -57,7 +73,7 @@ public class FlightInstanceController {
     public ResponseEntity<FlightInstanceResponse> updateFlightInstance (
             @PathVariable Long id,
             @RequestBody FlightInstanceRequest flightInstanceRequest
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(flightInstanceService.updateFlightInstance(id,flightInstanceRequest));
     }
 

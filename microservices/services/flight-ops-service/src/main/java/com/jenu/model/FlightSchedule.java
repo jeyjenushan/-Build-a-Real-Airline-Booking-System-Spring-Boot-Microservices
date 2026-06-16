@@ -1,10 +1,8 @@
 package com.jenu.model;
 
+import com.jenu.enums.RecurrenceType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -12,23 +10,29 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
+@Table(name = "flight_schedules")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
+@ToString(exclude = {"flight"})
+@EqualsAndHashCode(of = "id")
 public class FlightSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "flight_id", nullable = false)
     private Flight flight;
 
-    @Column(nullable = false)
+    // Cross-service ref: Airport is in location-service
+    @Column(name = "departure_airport_id", nullable = false)
     private Long departureAirportId;
 
-    @Column(nullable = false)
+    // Cross-service ref: Airport is in location-service
+    @Column(name = "arrival_airport_id", nullable = false)
     private Long arrivalAirportId;
 
     @Column(nullable = false)
@@ -43,13 +47,21 @@ public class FlightSchedule {
     @Column(nullable = false)
     private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
+    private RecurrenceType recurrenceType;
+
     //11/03/2026 to 10/04/2026
     //operating days:Monday,tuesday,wednesday only
     @ElementCollection
+    @CollectionTable(name = "schedule_operating_days", joinColumns = @JoinColumn(name = "schedule_id"))
+    @Column(name = "day_of_week")
     @Enumerated(EnumType.STRING)
     private List<DayOfWeek> operatingDays;
 
     private Boolean isActive=true;
+
+    @Version
+    private Long version;
 
 
 }

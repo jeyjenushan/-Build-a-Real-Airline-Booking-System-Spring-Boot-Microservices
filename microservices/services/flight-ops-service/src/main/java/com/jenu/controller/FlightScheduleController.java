@@ -1,9 +1,6 @@
 package com.jenu.controller;
-
-import com.jenu.payload.request.FlightInstanceRequest;
 import com.jenu.payload.request.FlightScheduleRequest;
 import com.jenu.payload.response.ApiResponse;
-import com.jenu.payload.response.FlightInstanceResponse;
 import com.jenu.payload.response.FlightScheduleResponse;
 import com.jenu.service.FlightScheduleService;
 import jakarta.validation.Valid;
@@ -34,14 +31,14 @@ public class FlightScheduleController {
     @GetMapping("/{id}")
     public ResponseEntity<FlightScheduleResponse> getFlightScheduleById (
             @PathVariable Long id
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(flightScheduleService.getFlightSchedule(id));
     }
 
     @GetMapping
     public ResponseEntity<List<FlightScheduleResponse>> getFlightSchedules (
             @RequestHeader("X-Airline-Id") Long airlineId
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(flightScheduleService.getAllFlightSchedulesByAirline(airlineId));
     }
 
@@ -51,14 +48,14 @@ public class FlightScheduleController {
     public ResponseEntity<FlightScheduleResponse> updateFlightInstance (
             @PathVariable Long id,
             @RequestBody FlightScheduleRequest flightScheduleRequest
-    ) throws Exception {
+    )  {
         return ResponseEntity.ok(flightScheduleService.updateFlightSchedule(id,flightScheduleRequest));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteFlightInstance (
             @PathVariable Long id
-    ) throws Exception {
+    )  {
         flightScheduleService.deleteFlightSchedule(id);
         ApiResponse apiResponse = new ApiResponse("Flight instance deleted");
         return ResponseEntity.ok(apiResponse);

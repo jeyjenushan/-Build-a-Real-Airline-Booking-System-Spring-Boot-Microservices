@@ -20,7 +20,7 @@ public class SeatMapController {
 
     @PostMapping
     public ResponseEntity<SeatMapResponse> createSeatMap(
-            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("X-Airline-Id") Long userId,
             @Valid @RequestBody SeatMapRequest request) throws Exception {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(seatMapService.createSeatMap(userId, request));

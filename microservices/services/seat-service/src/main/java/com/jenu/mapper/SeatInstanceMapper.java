@@ -38,7 +38,7 @@ public class SeatInstanceMapper {
                 .status(si.getStatus())
                 .flightInstanceId(si.getFlightInstanceId())
                 .flightCabinId(si.getFlightInstanceCabin() != null ? si.getFlightInstanceCabin().getId() : null)
-                .mealPreference(si.getMealPreference())
+
                 .fare(si.getFare())
                 .price(si.getPremiumSurcharge())
                 .version(si.getVersion())

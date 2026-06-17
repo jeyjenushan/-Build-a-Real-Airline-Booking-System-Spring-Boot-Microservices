@@ -8,6 +8,7 @@ import com.jenu.payload.response.CabinClassResponse;
 import com.jenu.repository.CabinClassRepository;
 import com.jenu.service.CabinClassService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CabinClassServiceImpl implements CabinClassService {
 
     private final CabinClassRepository cabinClassRepository;

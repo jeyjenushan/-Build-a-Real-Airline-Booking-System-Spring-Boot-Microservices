@@ -15,11 +15,6 @@ import java.util.Optional;
 public interface FlightInstanceCabinRepository extends JpaRepository<FlightInstanceCabin, Long> {
     Page<FlightInstanceCabin> findByFlightInstanceId(Long flightInstanceId, Pageable pageable);
 
-    @Query("SELECT fic FROM FlightInstanceCabin fic WHERE fic.flightInstanceId = :flightInstanceId AND fic.cabinClass.name = :cabinClass")
-    Optional<FlightInstanceCabin> findByFlightInstanceIdAndCabinClassName(
-            @Param("flightInstanceId") Long flightInstanceId,
-            @Param("cabinClass") CabinClassType cabinClass);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT fc FROM FlightInstanceCabin fc WHERE fc.id = :id")
     Optional<FlightInstanceCabin> findByIdForUpdate(@Param("id") Long id);

@@ -12,17 +12,11 @@ import java.util.Optional;
 
 public interface SeatInstanceRepository extends JpaRepository<SeatInstance, Long> {
     List<SeatInstance> findByFlightId(Long flightId);
-    List<SeatInstance> findByFlightScheduleId(Long flightScheduleId);
-    List<SeatInstance> findBySeatId(Long seatId);
-    List<SeatInstance> findByFlightInstanceCabinId(Long id);
+
 
     @Query("SELECT si FROM SeatInstance si WHERE si.flightId = :flightId AND si.status = 'AVAILABLE'")
     List<SeatInstance> findAvailableByFlightId(@Param("flightId") Long flightId);
 
-    @Query("SELECT si FROM SeatInstance si WHERE si.flightId = :flightId AND si.status = 'OCCUPIED'")
-    List<SeatInstance> findOccupiedByFlightId(@Param("flightId") Long flightId);
-
-    Long countByFlightId(Long flightId);
 
     @Query("SELECT COUNT(si) FROM SeatInstance si WHERE si.flightId = :flightId AND si.status = 'AVAILABLE'")
     Long countAvailableByFlightId(@Param("flightId") Long flightId);

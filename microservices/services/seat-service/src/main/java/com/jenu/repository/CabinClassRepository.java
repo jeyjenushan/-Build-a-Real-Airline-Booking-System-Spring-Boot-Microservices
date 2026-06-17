@@ -10,6 +10,5 @@ public interface CabinClassRepository extends JpaRepository<CabinClass, Long> {
     boolean existsByCodeAndAircraftId(String code, Long aircraftId);
     boolean existsByCodeAndAircraftIdAndIdNot(String code, Long aircraftId, Long id);
     List<CabinClass> findByAircraftId(Long aircraftId);
-
     CabinClass findByAircraftIdAndName(Long flightId, CabinClassType cabinClassType);
 }

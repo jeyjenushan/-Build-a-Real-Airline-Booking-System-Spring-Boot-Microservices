@@ -31,7 +31,6 @@ public class SeatInstanceResponse {
     private Long flightCabinId;
     private CabinClassType flightCabinClassType;
 
-    private String mealPreference;
     private Double fare;
 
     private Long version;

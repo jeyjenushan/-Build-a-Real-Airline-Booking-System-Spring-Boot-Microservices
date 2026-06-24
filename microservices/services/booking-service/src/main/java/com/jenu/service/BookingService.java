@@ -1,4 +1,4 @@
-package com.jenu.bookingservice.service;
+package com.jenu.service;
 
 import com.jenu.enums.BookingStatus;
 import com.jenu.exception.PaymentException;
@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface BookingService {
 
-    BookingResponse createBooking(BookingRequest request, Long userId)
+    PaymentInitiateResponse createBooking(BookingRequest request, Long userId)
             throws ResourceNotFoundException, PaymentException;
 
     BookingResponse updateBooking(Long id, BookingRequest request)

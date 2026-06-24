@@ -1,13 +1,15 @@
-package com.jenu.ancillaryservice.service.impl;
+package com.jenu.service.impl;
 
-import com.jenu.ancillaryservice.mapper.AncillaryMapper;
-import com.jenu.ancillaryservice.mapper.InsuranceCoverageMapper;
-import com.jenu.ancillaryservice.model.Ancillary;
-import com.jenu.ancillaryservice.model.InsuranceCoverage;
-import com.jenu.ancillaryservice.repository.AncillaryRepository;
-import com.jenu.ancillaryservice.repository.InsuranceCoverageRepository;
-import com.jenu.ancillaryservice.service.AncillaryService;
+import com.jenu.client.AirlineClient;
+import com.jenu.mapper.AncillaryMapper;
+import com.jenu.mapper.InsuranceCoverageMapper;
+import com.jenu.model.Ancillary;
+import com.jenu.model.InsuranceCoverage;
+import com.jenu.repository.AncillaryRepository;
+import com.jenu.repository.InsuranceCoverageRepository;
+import com.jenu.service.AncillaryService;
 import com.jenu.payload.request.AncillaryRequest;
+import com.jenu.payload.response.AirlineResponse;
 import com.jenu.payload.response.AncillaryResponse;
 import com.jenu.payload.response.InsuranceCoverageResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,11 @@ public class AncillaryServiceImpl implements AncillaryService {
 
     private final AncillaryRepository ancillaryRepository;
     private final InsuranceCoverageRepository insuranceCoverageRepository;
-   // private final AirlineIntegrationService airlineIntegrationService;
+   private final AirlineClient airlineClient;
 
     @Override
-    public AncillaryResponse create(Long airlineId, AncillaryRequest request) throws Exception {
-        //Long airlineId=airlineIntegrationService.getAirlineIdForUser(userId);
+    public AncillaryResponse create(Long userId, AncillaryRequest request) throws Exception {
+        AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
         Ancillary ancillary = Ancillary.builder()
                 .type(request.getType())
                 .subType(request.getSubType())
@@ -35,7 +37,7 @@ public class AncillaryServiceImpl implements AncillaryService {
                 .description(request.getDescription())
                 .metadata(request.getMetadata())
                 .displayOrder(request.getDisplayOrder())
-                .airlineId(airlineId)
+                .airlineId(airlineResponse.getId())
                 .build();
 
         Ancillary saved = ancillaryRepository.save(ancillary);
@@ -56,9 +58,9 @@ public class AncillaryServiceImpl implements AncillaryService {
     }
 
     @Override
-    public List<AncillaryResponse> getAllByAirlineId(Long airlineId) {
-      //  Long airlineId=airlineIntegrationService.getAirlineIdForUser(userId);
-        return ancillaryRepository.findByAirlineId(airlineId)
+    public List<AncillaryResponse> getAllByAirlineId(Long userId) {
+      AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
+        return ancillaryRepository.findByAirlineId(airlineResponse.getId())
                 .stream()
                 .map(ancillary -> {
                     List<InsuranceCoverage> insuranceCoverages = insuranceCoverageRepository

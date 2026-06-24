@@ -1,4 +1,4 @@
-package com.jenu.ancillaryservice.converter;
+package com.jenu.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

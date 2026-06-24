@@ -1,6 +1,6 @@
-package com.jenu.ancillaryservice.repository;
+package com.jenu.repository;
 
-import com.jenu.ancillaryservice.model.FlightCabinAncillary;
+import com.jenu.model.FlightCabinAncillary;
 import com.jenu.enums.AncillaryType;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package com.jenu.ancillaryservice.service;
+package com.jenu.service;
 
 import com.jenu.enums.AncillaryType;
 import com.jenu.payload.request.FlightCabinAncillaryRequest;

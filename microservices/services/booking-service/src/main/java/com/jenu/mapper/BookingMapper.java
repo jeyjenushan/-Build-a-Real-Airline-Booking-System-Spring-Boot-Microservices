@@ -1,9 +1,9 @@
-package com.jenu.bookingservice.mapper;
+package com.jenu.mapper;
 
 
 
-import com.jenu.bookingservice.model.Booking;
-import com.jenu.bookingservice.model.Passenger;
+import com.jenu.model.Booking;
+import com.jenu.model.Passenger;
 import com.jenu.payload.request.BookingRequest;
 import com.jenu.payload.response.*;
 

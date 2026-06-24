@@ -1,14 +1,14 @@
-package com.jenu.bookingservice.controller;
+package com.jenu.controller;
 
 
-import com.jenu.bookingservice.service.BookingService;
+import com.jenu.payload.response.PaymentInitiateResponse;
+import com.jenu.service.BookingService;
 import com.jenu.enums.BookingStatus;
 import com.jenu.exception.PaymentException;
 import com.jenu.exception.ResourceNotFoundException;
 import com.jenu.payload.request.BookingRequest;
 import com.jenu.payload.response.BookingResponse;
 import com.jenu.payload.response.BookingStatisticsResponse;
-import com.jenu.payload.response.PaymentInitiateResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,11 +25,11 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<BookingResponse> createBooking(
+    public ResponseEntity<PaymentInitiateResponse> createBooking(
             @Valid @RequestBody BookingRequest request,
             @RequestHeader("X-User-Id") Long userId)
             throws ResourceNotFoundException, PaymentException {
-        BookingResponse response = bookingService.createBooking(request, userId);
+        PaymentInitiateResponse response = bookingService.createBooking(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

@@ -1,13 +1,12 @@
-package com.jenu.bookingservice.repository;
+package com.jenu.repository;
 
 
-import com.jenu.bookingservice.model.Booking;
+import com.jenu.model.Booking;
 import com.jenu.enums.BookingStatus;
 import com.jenu.enums.PaymentStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.*;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

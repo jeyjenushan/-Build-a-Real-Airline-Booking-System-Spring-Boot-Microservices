@@ -1,7 +1,7 @@
-package com.jenu.ancillaryservice.mapper;
+package com.jenu.mapper;
 
 
-import com.jenu.ancillaryservice.model.FlightCabinAncillary;
+import com.jenu.model.FlightCabinAncillary;
 import com.jenu.payload.response.FlightCabinAncillaryResponse;
 import com.jenu.payload.response.InsuranceCoverageResponse;
 

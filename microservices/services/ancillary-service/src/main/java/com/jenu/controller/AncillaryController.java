@@ -1,7 +1,6 @@
-package com.jenu.ancillaryservice.controller;
+package com.jenu.controller;
 
-import com.jenu.ancillaryservice.service.AncillaryService;
-import com.jenu.exception.ResourceNotFoundException;
+import com.jenu.service.AncillaryService;
 import com.jenu.payload.request.AncillaryRequest;
 import com.jenu.payload.response.AncillaryResponse;
 import jakarta.validation.Valid;

@@ -1,4 +1,4 @@
-package com.jenu.ancillaryservice.service;
+package com.jenu.service;
 
 import com.jenu.payload.request.AncillaryRequest;
 import com.jenu.payload.response.AncillaryResponse;

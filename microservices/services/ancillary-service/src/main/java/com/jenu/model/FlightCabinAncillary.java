@@ -1,4 +1,4 @@
-package com.jenu.ancillaryservice.model;
+package com.jenu.model;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,8 +1,8 @@
-package com.jenu.bookingservice.repository;
+package com.jenu.repository;
 
 
 
-import com.jenu.bookingservice.model.Booking;
+import com.jenu.model.Booking;
 
 import java.time.LocalDateTime;
 import java.util.List;

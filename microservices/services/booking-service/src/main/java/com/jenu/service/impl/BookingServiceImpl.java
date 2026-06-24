@@ -1,30 +1,32 @@
-package com.jenu.bookingservice.service.impl;
+package com.jenu.service.impl;
 
 
-import com.jenu.bookingservice.mapper.BookingMapper;
-import com.jenu.bookingservice.model.Booking;
-import com.jenu.bookingservice.model.Passenger;
-import com.jenu.bookingservice.repository.BookingRepository;
-import com.jenu.bookingservice.service.BookingService;
-import com.jenu.bookingservice.service.PassengerService;
-import com.jenu.bookingservice.service.TicketService;
-import com.jenu.enums.BookingStatus;
+import com.jenu.clients.*;
 import com.jenu.enums.PaymentGateway;
+import com.jenu.mapper.BookingMapper;
+import com.jenu.model.Booking;
+import com.jenu.model.Passenger;
+import com.jenu.payload.request.PaymentInitiateRequest;
+import com.jenu.repository.BookingRepository;
+import com.jenu.service.BookingService;
+import com.jenu.service.PassengerService;
+import com.jenu.service.TicketService;
+import com.jenu.enums.BookingStatus;
 import com.jenu.exception.PaymentException;
 import com.jenu.exception.ResourceNotFoundException;
 import com.jenu.payload.request.BookingRequest;
 import com.jenu.payload.request.PassengerRequest;
-import com.jenu.payload.request.PaymentInitiateRequest;
 import com.jenu.payload.response.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.jenu.service.integration.PricingIntegrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,18 +45,18 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final PassengerService passengerService;
     private final TicketService ticketService;
-   // private final PricingIntegrationService pricingIntegrationService;
-   /* private final PricingClient pricingClient;
+   private final PricingIntegrationService pricingIntegrationService;
+    private final PricingClient pricingClient;
     private final AncillaryClient ancillaryClient;
     private final PaymentClient paymentClient;
     private final SeatClient seatClient;
-    private final FlightClient flightClient;*/
-    //private final AirlineClient airlineClient;
+    private final FlightClient flightClient;
+    private final AirlineClient airlineClient;
 
 
     @Override
     @Transactional
-    public BookingResponse createBooking(BookingRequest request, Long userId)
+    public PaymentInitiateResponse createBooking(BookingRequest request, Long userId)
             throws ResourceNotFoundException, PaymentException {
         log.info("Creating booking for user: {}", userId);
 
@@ -69,15 +71,15 @@ public class BookingServiceImpl implements BookingService {
             passengers.add(passenger);
         }
 
-        // Step 3: check flightExist
-       // FlightResponse flightResponse = flightClient.getFlightById(request.getFlightId());
+        //Step 3: check flightExist
+        FlightResponse flightResponse = flightClient.getFlightById(request.getFlightId());
 
         //Step 4:  Create booking entity with cross-service IDs
         Booking booking = BookingMapper.toEntity(
                 request, userId, passengers, bookingReference);
         booking.setStatus(BookingStatus.PENDING);
 
-        booking.setAirlineId(1L);
+        booking.setAirlineId(flightResponse.getAirline().getId());
 
         // Set seat instance IDs from passenger requests
         List<Long> seatInstanceIds = request.getPassengers().stream()
@@ -96,18 +98,14 @@ public class BookingServiceImpl implements BookingService {
         // Generate tickets
         ticketService.generateTicketsForBooking(booking);
 
-
-        /*
         // Calculate total amount
-
         int passengerCount = booking.getPassengers().size();
-       // Double fareTotal = pricingIntegrationService.calculateFareTotal(booking.getFareId()) * passengerCount;
-        //Double seatPrice= seatClient.calculateSeatPrice(booking.getSeatInstanceIds());
-        //Double ancillaryPrice=ancillaryClient.calculateAncillariesPrice(booking.getAncillaryIds());
-        //Double mealPrice=ancillaryClient.calculateMealPrice(booking.getMealIds());
+       Double fareTotal = pricingIntegrationService.calculateFareTotal(booking.getFareId()) * passengerCount;
+        Double seatPrice= seatClient.calculateSeatPrice(booking.getSeatInstanceIds());
+        Double ancillaryPrice=ancillaryClient.calculateAncillariesPrice(booking.getAncillaryIds());
+        Double mealPrice=ancillaryClient.calculateMealPrice(booking.getMealIds());
 
-        Double totalPrice=100.00;
-                //fareTotal+seatPrice+ancillaryPrice+mealPrice;
+        Double totalPrice=fareTotal+seatPrice+ancillaryPrice+mealPrice;
 
 
         // Initiate payment
@@ -115,22 +113,21 @@ public class BookingServiceImpl implements BookingService {
                 .userId(userId)
                 .bookingId(booking.getId())
                 .amount(totalPrice)
-                .gateway(PaymentGateway.RAZORPAY)
+                .gateway(PaymentGateway.STRIPE)
                 .description("Booking: " + bookingReference)
                 .build();
 
         System.out.println("Booking created successfully: {}   - "+paymentRequest);
 
-        PaymentInitiateResponse paymentInit = paymentClient.initiatePayment(paymentRequest, userId);
+        PaymentInitiateResponse paymentInit = paymentClient.initiatePayment(paymentRequest);
         if (paymentInit == null) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Payment service is temporarily unavailable. Please retry.");
         }
         return paymentInit;
 
-         */
 
-        return convertBookingResponse(booking);
+
 
 
     }
@@ -167,14 +164,14 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingResponse> getBookingsByAirline(
-            Long airlineId,
+            Long userId,
             String searchQuery,
             BookingStatus status,
             Long flightInstanceId,
             String sortDirection
     ) {
-      //  AirlineResponse airlineResponse = airlineClient.getAirlineByOwner(userId);
-     //   Long airlineId = airlineResponse.getId();
+      AirlineResponse airlineResponse = airlineClient.getAirlineByOwner(userId);
+     Long airlineId = airlineResponse.getId();
 
         Sort.Direction direction = "asc".equalsIgnoreCase(sortDirection)
                 ? Sort.Direction.ASC
@@ -304,7 +301,7 @@ public class BookingServiceImpl implements BookingService {
         return reference;
     }
 
-    /*
+
     private List<BookingResponse> enrichBatch(List<Booking> bookings) {
         if (bookings.isEmpty()) return Collections.emptyList();
 
@@ -371,18 +368,19 @@ public class BookingServiceImpl implements BookingService {
             );
         }).collect(Collectors.toList());
     }
-*/
+
     private BookingResponse convertBookingResponse(Booking booking)  {
 
-        List<FlightCabinAncillaryResponse> ancillaryResponses=new ArrayList<>();
+        List<FlightCabinAncillaryResponse> ancillaryResponses=ancillaryClient.getAllByIds(
+                booking.getAncillaryIds()
+        );
+        List<FlightMealResponse> mealResponses=ancillaryClient.getMealsByIds(booking.getMealIds());
+        PaymentDTO paymentDTO=paymentClient.getPaymentByBookingId(booking.getId());
+        FareResponse fareResponse=pricingClient.getFareById(booking.getFareId());
+        FlightResponse flightResponse=flightClient.getFlightById(booking.getFlightId());
 
-        List<FlightMealResponse> mealResponses=new ArrayList<>();
-        PaymentDTO paymentDTO=new PaymentDTO();
-        FareResponse fareResponse=new FareResponse();
-        FlightResponse flightResponse=new FlightResponse();
-
-        List<SeatInstanceResponse> seatInstanceResponses=new ArrayList<>();
-        FlightInstanceResponse flightInstanceResponse=new FlightInstanceResponse();
+        List<SeatInstanceResponse> seatInstanceResponses=seatClient.getAllByIds(booking.getSeatInstanceIds());
+        FlightInstanceResponse flightInstanceResponse=flightClient.getFlightInstanceResponse(booking.getFlightInstanceId());
 
 
         System.out.println("seat instances -------- "+seatInstanceResponses.size());

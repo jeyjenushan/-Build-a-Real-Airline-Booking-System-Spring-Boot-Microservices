@@ -1,6 +1,6 @@
-package com.jenu.ancillaryservice.repository;
+package com.jenu.repository;
 
-import com.jenu.ancillaryservice.model.Ancillary;
+import com.jenu.model.Ancillary;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

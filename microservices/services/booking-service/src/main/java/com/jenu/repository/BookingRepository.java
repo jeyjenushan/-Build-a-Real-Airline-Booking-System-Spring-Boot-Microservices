@@ -1,6 +1,6 @@
-package com.jenu.bookingservice.repository;
+package com.jenu.repository;
 
-import com.jenu.bookingservice.model.Booking;
+import com.jenu.model.Booking;
 import com.jenu.enums.BookingStatus;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,8 +1,7 @@
-package com.jenu.ancillaryservice.controller;
+package com.jenu.controller;
 
-import com.jenu.ancillaryservice.service.FlightCabinAncillaryService;
+import com.jenu.service.FlightCabinAncillaryService;
 import com.jenu.enums.AncillaryType;
-import com.jenu.exception.ResourceNotFoundException;
 import com.jenu.payload.request.FlightCabinAncillaryRequest;
 import com.jenu.payload.response.FlightCabinAncillaryResponse;
 import jakarta.validation.Valid;

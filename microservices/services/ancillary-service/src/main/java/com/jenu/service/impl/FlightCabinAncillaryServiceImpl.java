@@ -1,14 +1,14 @@
-package com.jenu.ancillaryservice.service.impl;
+package com.jenu.service.impl;
 
-import com.jenu.ancillaryservice.mapper.FlightCabinAncillaryMapper;
-import com.jenu.ancillaryservice.mapper.InsuranceCoverageMapper;
-import com.jenu.ancillaryservice.model.Ancillary;
-import com.jenu.ancillaryservice.model.FlightCabinAncillary;
-import com.jenu.ancillaryservice.model.InsuranceCoverage;
-import com.jenu.ancillaryservice.repository.AncillaryRepository;
-import com.jenu.ancillaryservice.repository.FlightCabinAncillaryRepository;
-import com.jenu.ancillaryservice.repository.InsuranceCoverageRepository;
-import com.jenu.ancillaryservice.service.FlightCabinAncillaryService;
+import com.jenu.mapper.FlightCabinAncillaryMapper;
+import com.jenu.mapper.InsuranceCoverageMapper;
+import com.jenu.model.Ancillary;
+import com.jenu.model.FlightCabinAncillary;
+import com.jenu.model.InsuranceCoverage;
+import com.jenu.repository.AncillaryRepository;
+import com.jenu.repository.FlightCabinAncillaryRepository;
+import com.jenu.repository.InsuranceCoverageRepository;
+import com.jenu.service.FlightCabinAncillaryService;
 import com.jenu.enums.AncillaryType;
 import com.jenu.exception.ResourceNotFoundException;
 import com.jenu.payload.request.FlightCabinAncillaryRequest;

@@ -11,12 +11,12 @@ import java.util.Map;
 public interface FlightInstanceService {
 
     FlightInstanceResponse createFlightInstance(
-            Long airlineId,
+            Long userId,
             FlightInstanceRequest request
     ) ;
     List<FlightInstanceResponse> getFlightInstances();
     FlightInstanceResponse getFlightInstanceById(Long id) ;
-    Page<FlightInstanceResponse> getByAirlineId(Long airlineId,Long departureAirportId,
+    Page<FlightInstanceResponse> getByAirlineId(Long userId,Long departureAirportId,
                                                 Long arrivalAirportId,Long flightId,
                                                 LocalDate onDate,
                                                 Pageable pageable);

@@ -1,5 +1,7 @@
 package com.jenu.service.impl;
 
+import com.jenu.client.AirlineClient;
+import com.jenu.client.LocationClient;
 import com.jenu.enums.FlightStatus;
 import com.jenu.mapper.FlightInstanceMapper;
 import com.jenu.mapper.FlightScheduleMapper;
@@ -7,6 +9,7 @@ import com.jenu.model.Flight;
 import com.jenu.model.FlightSchedule;
 import com.jenu.payload.request.FlightInstanceRequest;
 import com.jenu.payload.request.FlightScheduleRequest;
+import com.jenu.payload.response.AirlineResponse;
 import com.jenu.payload.response.AirportResponse;
 import com.jenu.payload.response.FlightScheduleResponse;
 import com.jenu.repository.FlightInstanceRepository;
@@ -30,12 +33,15 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
     private final FlightScheduleRepository flightScheduleRepository;
     private final FlightRepository flightRepository;
     private final FlightInstanceService flightInstanceService;
+    private final LocationClient locationClient;
+    private final AirlineClient airlineClient;
 
 
     @Override
-    public FlightScheduleResponse createFlightSchedule(Long airlineId,
+    public FlightScheduleResponse createFlightSchedule(Long userId,
                                                        FlightScheduleRequest flightScheduleRequest) throws Exception {
-        //todo watch for airlineId
+
+        AirlineResponse airlineResponse=airlineClient.getAirlineById(userId);
 
         Flight flight=flightRepository.findById(flightScheduleRequest.getFlightId())
                 .orElseThrow(
@@ -72,7 +78,7 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
                         LocalDateTime.of(date,savedFlightSchedule.getArrivalTime())
                 );
                 flightInstanceService.createFlightInstance(
-                        airlineId,flightInstanceRequest
+                        airlineResponse.getId(),flightInstanceRequest
                 );
 
             }
@@ -95,8 +101,9 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
 
     @Override
     public List<FlightScheduleResponse> getAllFlightSchedulesByAirline(Long userId) {
+        AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
         List<FlightSchedule> schedules=flightScheduleRepository
-                .findByFlightAirlineId(userId);
+                .findByFlightAirlineId(airlineResponse.getId());
         return schedules.stream()
                 .map(this::convertFlightScheduleToFlightScheduleResponse).toList();
     }
@@ -125,13 +132,8 @@ public class FlightScheduleServiceImpl implements FlightScheduleService {
     }
 
     private FlightScheduleResponse convertFlightScheduleToFlightScheduleResponse(FlightSchedule flightSchedule) {
-        // todo :Service to service communication
-        AirportResponse departureAirport=AirportResponse.builder()
-                .id(flightSchedule.getDepartureAirportId())
-                .build();
-        AirportResponse arrivalAirport=AirportResponse.builder()
-                .id(flightSchedule.getArrivalAirportId())
-                .build();
+        AirportResponse departureAirport=locationClient.getAirportById(flightSchedule.getDepartureAirportId());
+        AirportResponse arrivalAirport=locationClient.getAirportById(flightSchedule.getArrivalAirportId());
         return FlightScheduleMapper
                 .convertToFlightScheduleResponse(
                         flightSchedule,arrivalAirport,departureAirport

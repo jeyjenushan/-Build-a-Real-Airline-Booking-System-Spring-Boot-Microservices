@@ -1,5 +1,6 @@
 package com.jenu.service.impl;
 
+import com.jenu.client.AirlineClient;
 import com.jenu.mapper.SeatMapMapper;
 import com.jenu.model.CabinClass;
 import com.jenu.model.SeatMap;
@@ -26,12 +27,12 @@ SeatMapServiceImpl implements SeatMapService {
 
     private final SeatMapRepository seatMapRepository;
     private final CabinClassRepository cabinClassRepository;
-  //  private final AirlineClient airlineClient;
+  private final AirlineClient airlineClient;
     private final SeatService seatService;
 
     @Override
-    public SeatMapResponse createSeatMap(Long airlineId, SeatMapRequest request) throws Exception {
-        //Long airlineId= getAirlineForUser(userId);
+    public SeatMapResponse createSeatMap(Long userId, SeatMapRequest request) throws Exception {
+        AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
 
         CabinClass cabinClass = cabinClassRepository.findById(request.getCabinClassId())
                     .orElseThrow(() -> new EntityNotFoundException(
@@ -39,13 +40,13 @@ SeatMapServiceImpl implements SeatMapService {
 
 
         if (seatMapRepository.existsByAirlineIdAndCabinClassIdAndName(
-                airlineId, request.getCabinClassId(), request.getName())) {
+                airlineResponse.getId(), request.getCabinClassId(), request.getName())) {
             throw new IllegalArgumentException(
                     "Seat map with name '" + request.getName() + "' already exists for this airline and cabin class");
         }
 
         SeatMap seatMap = SeatMapMapper.toEntity(request, cabinClass);
-        seatMap.setAirlineId(airlineId);
+        seatMap.setAirlineId(airlineResponse.getId());
         SeatMap savedSeatMap = seatMapRepository.save(seatMap);
 
 //      generate seats for seatMap
@@ -56,8 +57,9 @@ SeatMapServiceImpl implements SeatMapService {
 
 
     @Override
-    public List<SeatMapResponse> createSeatMaps(Long airlineId, List<SeatMapRequest> requests) throws Exception {
-        //Long airlineId = getAirlineForUser(userId);
+    public List<SeatMapResponse> createSeatMaps(Long userId, List<SeatMapRequest> requests) throws Exception {
+       AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
+        Long airlineId = airlineResponse.getId();
 
         List<SeatMap> toSave = requests.stream()
                 .filter(req -> !seatMapRepository.existsByAirlineIdAndCabinClassIdAndName(
@@ -114,12 +116,12 @@ SeatMapServiceImpl implements SeatMapService {
 
 
     @Override
-    public SeatMapResponse updateSeatMap(Long airlineId, Long id, SeatMapRequest request) {
-      //  Long airlineId= getAirlineForUser(userId);
+    public SeatMapResponse updateSeatMap(Long userId, Long id, SeatMapRequest request) {
+      AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
         SeatMap existing = seatMapRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Seat map not found with id: " + id));
 
-        if (seatMapRepository.existsByAirlineIdAndNameAndIdNot(airlineId, request.getName(), id)) {
+        if (seatMapRepository.existsByAirlineIdAndNameAndIdNot(airlineResponse.getId(), request.getName(), id)) {
             throw new IllegalArgumentException(
                     "Seat map with name '" + request.getName() + "' already exists for this airline");
         }
@@ -136,16 +138,4 @@ SeatMapServiceImpl implements SeatMapService {
         }
         seatMapRepository.deleteById(id);
     }
-
-
-    /*private Long getAirlineForUser(Long userId) {
-        try {
-            AirlineResponse airline = airlineClient.getAirlineByOwner(userId);
-            return airline.getId();
-        } catch (FeignException.NotFound e) {
-            throw new EntityNotFoundException("No airline found for user: " + userId);
-        } catch (FeignException e) {
-            throw new RuntimeException("Failed to fetch airline from airline-core-service: " + e.getMessage(), e);
-        }
-    }*/
 }

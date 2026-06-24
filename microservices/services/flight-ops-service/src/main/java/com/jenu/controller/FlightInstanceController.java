@@ -25,10 +25,10 @@ public class FlightInstanceController {
     @PostMapping
     public ResponseEntity<FlightInstanceResponse> createFlightInstance(
            @Valid @RequestBody FlightInstanceRequest flightInstanceRequest,
-            @RequestHeader("X-Airline-Id") Long airlineId
+            @RequestHeader("X-User-Id") Long userId
     )  {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(flightInstanceService.createFlightInstance(airlineId,flightInstanceRequest));
+                .body(flightInstanceService.createFlightInstance(userId,flightInstanceRequest));
     }
 
 
@@ -56,7 +56,7 @@ public class FlightInstanceController {
 
     @GetMapping
     public ResponseEntity<Page<FlightInstanceResponse>> getByAirlineId (
-            @RequestHeader("X-Airline-Id") Long airlineId,
+            @RequestHeader("X-User-Id") Long userId,
             @RequestParam(required = false)Long departureAirportId,
             @RequestParam(required = false)Long arrivalAirportId,
             @RequestParam(required = false) Long flightId,
@@ -65,7 +65,7 @@ public class FlightInstanceController {
             )  {
         return
                 ResponseEntity.ok(flightInstanceService.getByAirlineId(
-                airlineId,departureAirportId,arrivalAirportId,flightId,onDate,pageable
+                userId,departureAirportId,arrivalAirportId,flightId,onDate,pageable
         ));
     }
 

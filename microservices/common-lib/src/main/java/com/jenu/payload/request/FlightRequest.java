@@ -5,6 +5,7 @@ import com.jenu.payload.response.AircraftResponse;
 import com.jenu.payload.response.AirlineResponse;
 import com.jenu.payload.response.AirportResponse;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,13 +26,13 @@ public class FlightRequest {
 
     private Long airlineId;
 
-    @NotBlank(message = "Aircraft ID is required")
+    @NotNull(message = "Aircraft ID is required")
     private Long aircraftId;
 
-    @NotBlank(message = "Departure airport ID is required")
+    @NotNull(message = "Departure airport ID is required")
     private Long departureAirportId;
 
-    @NotBlank(message = "Arrival airport ID is required")
+    @NotNull(message = "Arrival airport ID is required")
     private Long arrivalAirportId;
 
     private FlightStatus status;

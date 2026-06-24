@@ -9,5 +9,19 @@ spring:
     username: root
     password: Viber+1014
 
+  jpa:
+    hibernate:
+      ddl-auto: update
 
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
 
+    show-sql: true
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true

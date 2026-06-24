@@ -1,6 +1,6 @@
-package com.jenu.ancillaryservice.model;
+package com.jenu.model;
 
-import com.jenu.ancillaryservice.converter.AncillaryMetadataConverter;
+import com.jenu.converter.AncillaryMetadataConverter;
 import com.jenu.domain.metadata.AncillaryMetadata;
 import com.jenu.enums.AncillaryType;
 import jakarta.persistence.*;

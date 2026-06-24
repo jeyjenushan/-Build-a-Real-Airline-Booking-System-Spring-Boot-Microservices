@@ -1,7 +1,8 @@
 package com.jenu.service.impl;
 
+import com.jenu.client.AirlineClient;
+import com.jenu.client.LocationClient;
 import com.jenu.enums.FlightStatus;
-import com.jenu.exception.AirportException;
 import com.jenu.mapper.FlightMapper;
 import com.jenu.model.Flight;
 import com.jenu.payload.request.FlightRequest;
@@ -29,16 +30,18 @@ import java.util.stream.Collectors;
 @Service
 public class FlightServiceImpl implements FlightService {
     private final FlightRepository flightRepository;
+    private final AirlineClient airlineClient;
+    private final LocationClient airportClient;
 
     @Override
     public FlightResponse createFlight(Long userId, FlightRequest flightRequest)  {
-       //todo:watch airlineId
+       AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
         if (flightRepository.existsByFlightNumber(flightRequest.getFlightNumber())) {
             throw new IllegalArgumentException(
                     "Flight with number '" + flightRequest.getFlightNumber() + "' already exists");
         }
         Flight flight= FlightMapper.convertToFlightEntity(flightRequest);
-        flight.setAirlineId(userId);
+        flight.setAirlineId(airlineResponse.getId());
         Flight savedFlight = flightRepository.save(flight);
         return convertToFlightResponse(savedFlight);
     }
@@ -46,6 +49,7 @@ public class FlightServiceImpl implements FlightService {
     @SneakyThrows
     @Override
     public List<FlightResponse> createFlights(Long userId, List<FlightRequest> requests)  {
+        AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
         // Single DB call to find all already-existing flight numbers
         Set<String> existingNumbers = flightRepository.findExistingFlightNumbers(
                 requests.stream().map(FlightRequest::getFlightNumber).collect(Collectors.toList()));
@@ -60,7 +64,7 @@ public class FlightServiceImpl implements FlightService {
                       //  validateAircraftExists(req.getAircraftId());
                     }
                     Flight flight = FlightMapper.convertToFlightEntity(req);
-                    flight.setAirlineId(userId);
+                    flight.setAirlineId(airlineResponse.getId());
                     return flight;
                 })
                 .collect(Collectors.toList());
@@ -107,8 +111,8 @@ public class FlightServiceImpl implements FlightService {
     @Override
     @Transactional(readOnly = true)
     public Page<FlightResponse> getFlightsByAirline(Long userId, Long departureAirportId, Long arrivalAirportId, Pageable pageable) {
-        //todo:watch airlineId
-        return flightRepository.findByAirlineAndDepartureAirportAndArrivalAirportId(userId,departureAirportId,arrivalAirportId,pageable)
+        AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
+        return flightRepository.findByAirlineAndDepartureAirportAndArrivalAirportId(airlineResponse.getId(),departureAirportId,arrivalAirportId,pageable)
                 .map(this::convertToFlightResponse);
     }
 
@@ -134,9 +138,9 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public void deleteFlight(Long airlineId,Long flightId) {
-       //todo:watch airlineId
-        Flight existingFlight = flightRepository.findByAirlineIdAndId(airlineId, flightId)
+    public void deleteFlight(Long userId,Long flightId) {
+        AirlineResponse airlineResponse=airlineClient.getAirlineByOwner(userId);
+        Flight existingFlight = flightRepository.findByAirlineIdAndId(airlineResponse.getId(), flightId)
                 .orElseThrow(
                         () -> new EntityNotFoundException("Flight with id " + flightId + " not found")
                 );
@@ -162,23 +166,10 @@ public class FlightServiceImpl implements FlightService {
     }
 
     public FlightResponse convertToFlightResponse(Flight flight) {
-        //todo: service to service communication
-        AircraftResponse aircraftResponse=AircraftResponse
-                .builder()
-                .id(flight.getAircraftId())
-                .build();
-        AirlineResponse airlineResponse=AirlineResponse
-                .builder()
-                .id(flight.getAirlineId())
-                .build();
-        AirportResponse departureAirport=AirportResponse
-                .builder()
-                .id(flight.getDepartureAirportId())
-                .build();
-        AirportResponse arrivalAirport=AirportResponse
-                .builder()
-                .id(flight.getArrivalAirportId())
-                .build();
+        AircraftResponse aircraftResponse=airlineClient.getAircraft(flight.getAircraftId());
+        AirlineResponse airlineResponse=airlineClient.getAirlineById(flight.getAirlineId());
+        AirportResponse departureAirport=airportClient.getAirportById(flight.getDepartureAirportId());
+        AirportResponse arrivalAirport=airportClient.getAirportById(flight.getArrivalAirportId());
 
         return FlightMapper
                 .convertToFlightResponse(

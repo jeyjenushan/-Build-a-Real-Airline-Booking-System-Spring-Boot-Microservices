@@ -24,6 +24,7 @@ public class FlightInstanceResponse {
     private String aircraftCode;
     private AirportResponse departureAirport;
     private AirportResponse arrivalAirport;
+    private FareResponse fare;
     private LocalDateTime departureDateTime;
     private LocalDateTime arrivalDateTime;
     private String formattedDuration;

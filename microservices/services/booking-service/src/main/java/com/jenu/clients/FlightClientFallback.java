@@ -17,7 +17,7 @@ public class FlightClientFallback implements FlightClient {
     }
 
     @Override
-    public FlightInstanceResponse getFlightInstanceResponse(Long id) {
+    public FlightInstanceResponse getFlightInstanceById(Long id) {
         return null;
     }
 

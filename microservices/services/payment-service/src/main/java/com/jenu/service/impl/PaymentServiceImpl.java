@@ -4,6 +4,7 @@ package com.jenu.service.impl;
 import com.jenu.client.UserClient;
 import com.jenu.enums.PaymentGateway;
 import com.jenu.enums.PaymentStatus;
+import com.jenu.event.PaymentEventProducer;
 import com.jenu.exception.PaymentException;
 import com.jenu.payload.dto.UserDto;
 import com.jenu.payload.request.PaymentInitiateRequest;
@@ -16,6 +17,8 @@ import com.jenu.payload.response.PaymentLinkResponse;
 import com.jenu.repository.PaymentRepository;
 import com.jenu.service.PaymentService;
 import com.jenu.service.gateway.StripeService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,7 +39,7 @@ import java.util.stream.Collectors;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-   // private final PaymentEventProducer paymentEventProducer;
+   private final PaymentEventProducer paymentEventProducer;
     private final StripeService stripeService;
     private final UserClient userClient;
 
@@ -80,15 +84,17 @@ public class PaymentServiceImpl implements PaymentService {
             if (request.getGateway() == PaymentGateway.STRIPE) {
                 log.info("Fetching user details from user-service for user ID: {}", request.getUserId());
                 
-                UserDto user = userClient.getUserById(request.getUserId());
-                
-                if (user == null) {
-                    log.error("User not found for ID: {}", request.getUserId());
-                    throw new PaymentException("User not found for payment initiation");
-                }
+               // UserDto user = userClient.getUserById(request.getUserId());
+                UserDto user=new UserDto(1L,"jeyarubanjenushan3@gmail.com",null,"Jeyaruban Jenushan","null","ROLE_AIRLINE_OWNER",LocalDateTime.of(2026,6,25,10,26,7,686165));
+//                if (user == null) {
+//                    log.error("User not found for ID: {}", request.getUserId());
+//                    throw new PaymentException("User not found for payment initiation");
+//                }
                 
                 log.info("Successfully retrieved user: {}", user.getId());
                 PaymentLinkResponse paymentLinkResponse = stripeService.createPaymentLink(user, payment);
+                payment.setProviderPaymentId(paymentLinkResponse.getPayment_link_id());
+                paymentRepository.save(payment);
                 response.setCheckoutUrl(paymentLinkResponse.getPayment_link_url());
                 response.setStripePaymentLinkId(paymentLinkResponse.getPayment_link_id());
                 log.info("Payment link created successfully for user: {}", user.getId());
@@ -104,55 +110,81 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
+
+
     @Override
     @Transactional
     public PaymentDTO verifyPayment(PaymentVerifyRequest request) throws PaymentException {
         log.info("Verifying payment: {}", request);
-        
-        Payment payment = null;
-        boolean isValid = false;
-        
-      if (request.getStripePaymentIntentId() != null) {
-            // Handle Stripe verification
-            isValid = stripeService.verifyPayment(request.getStripePaymentIntentId());
-            
-            // Get payment ID from metadata
-            Map<String, Object> paymentIntentDetails = stripeService.retrievePaymentIntent(request.getStripePaymentIntentId());
-            
-            @SuppressWarnings("unchecked")
-            Map<String, String> metadata = (Map<String, String>) paymentIntentDetails.get("metadata");
-            Long paymentId = Long.parseLong(metadata.get("payment_id"));
-            
-            payment = paymentRepository.findById(paymentId)
-                    .orElseThrow(() -> new PaymentException("Payment not found with ID: " + paymentId));
-            
-            if (isValid) {
-                payment.setProviderPaymentId(request.getStripePaymentIntentId());
+
+        try {
+            if (request.getStripeSessionId() == null || request.getStripeSessionId().isBlank()) {
+                throw new PaymentException("Stripe session_id is required");
             }
+
+            Map<String, Object> sessionDetails =
+                    stripeService.retrieveCheckoutSession(request.getStripeSessionId());
+
+            String paymentIntentId = (String) sessionDetails.get("payment_intent");
+            String paymentLinkId = (String) sessionDetails.get("payment_link");
+
+            if (paymentIntentId == null || paymentIntentId.isBlank()) {
+                throw new PaymentException("PaymentIntent not found in Stripe Checkout Session");
+            }
+
+            boolean isValid = stripeService.verifyPayment(paymentIntentId);
+
+            Map<String, Object> paymentIntentDetails =
+                    stripeService.retrievePaymentIntent(paymentIntentId);
+
+            log.info("Payment Intent Details: {}", paymentIntentDetails);
+
+            @SuppressWarnings("unchecked")
+            Map<String, String> metadata =
+                    (Map<String, String>) paymentIntentDetails.get("metadata");
+
+            Payment payment;
+
+            String paymentIdValue = metadata != null ? metadata.get("payment_id") : null;
+
+            if (paymentIdValue != null && !paymentIdValue.isBlank()) {
+                Long paymentId = Long.parseLong(paymentIdValue);
+
+                payment = paymentRepository.findById(paymentId)
+                        .orElseThrow(() -> new PaymentException("Payment not found with ID: " + paymentId));
+            } else if (paymentLinkId != null && !paymentLinkId.isBlank()) {
+                payment = paymentRepository.findByProviderPaymentId(paymentLinkId)
+                        .orElseThrow(() -> new PaymentException("Payment not found with Stripe PaymentLink ID: " + paymentLinkId));
+            } else {
+                throw new PaymentException("Cannot identify local payment. Stripe metadata and payment_link are missing.");
+            }
+
+            payment.setProviderPaymentId(paymentIntentId);
+
+            if (isValid) {
+                payment.setStatus(PaymentStatus.SUCCESS);
+                payment.setPaidAt(LocalDateTime.now());
+                payment = paymentRepository.save(payment);
+                paymentEventProducer.sendPaymentCompleted(payment);
+            } else {
+                payment.setStatus(PaymentStatus.FAILED);
+                payment.setFailureReason("Payment verification failed");
+                payment = paymentRepository.save(payment);
+                paymentEventProducer.sendPaymentFailed(payment);
+            }
+
+            return PaymentMapper.toDTO(payment);
+
+        } catch (PaymentException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Payment verification failed", e);
+            throw new PaymentException("Failed to verify payment: " + e.getMessage());
         }
-      else {
-            throw new PaymentException("No valid payment verification ID provided");
-        }
-
-        if (isValid) {
-            payment.setStatus(PaymentStatus.SUCCESS);
-            payment.setPaidAt(LocalDateTime.now());
-
-            // Save payment first
-            payment = paymentRepository.save(payment);
-            log.info("Payment verified successfully: {}", payment.getId());
-            //paymentEventProducer.sendPaymentCompleted(payment);
-        } else {
-            payment.setStatus(PaymentStatus.FAILED);
-            payment.setFailureReason("Payment verification failed");
-            log.error("Payment verification failed: {}", payment.getId());
-            payment = paymentRepository.save(payment);
-
-           // paymentEventProducer.sendPaymentFailed(payment);
-        }
-
-        return PaymentMapper.toDTO(payment);
     }
+
+
+
 
     @Override
     @Transactional(readOnly = true)

@@ -38,7 +38,6 @@ public class FlightSearchRequest {
     private String departureTimeRange; // "any", "morning", "afternoon", "evening", "night"
     private String arrivalTimeRange; // "any", "morning", "afternoon", "evening", "night"
     private Integer maxDuration; // Maximum duration in minutes
-    private String alliance; // "any", "star", "oneworld", "skyteam"
 
     // Sorting Parameters
     private String sortBy; // "price", "duration", "departure", "arrival"

@@ -21,7 +21,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .phoneNumber(String.valueOf(user.getPhoneNumber()))
-                .userRole(user.getRole())
+                .userRole(user.getRole().toString())
                 .lastLogin(user.getLastLogin())
                 .build();
     }

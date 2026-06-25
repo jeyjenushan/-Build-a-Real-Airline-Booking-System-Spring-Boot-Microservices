@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentVerifyRequest {
 
-    // Razorpay specific fields
-    private String razorpayPaymentId;
-
     // Stripe specific fields
-    private String stripePaymentIntentId;
+    private String stripeSessionId;
 }

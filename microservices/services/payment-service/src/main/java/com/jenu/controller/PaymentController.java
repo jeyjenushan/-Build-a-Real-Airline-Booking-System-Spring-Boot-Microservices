@@ -7,6 +7,7 @@ import com.jenu.payload.request.PaymentVerifyRequest;
 import com.jenu.payload.response.PaymentDTO;
 import com.jenu.payload.response.PaymentInitiateResponse;
 import com.jenu.service.PaymentService;
+import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,7 @@ public class PaymentController {
     @PostMapping("/verify")
     public ResponseEntity<?> verifyPayment(
             @Valid @RequestBody PaymentVerifyRequest request)
-            throws PaymentException {
+            throws PaymentException, StripeException {
 
             log.info("Received payment verification request");
             PaymentDTO payment = paymentService.verifyPayment(request);

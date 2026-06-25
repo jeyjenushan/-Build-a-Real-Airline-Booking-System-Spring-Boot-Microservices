@@ -380,7 +380,7 @@ public class BookingServiceImpl implements BookingService {
         FlightResponse flightResponse=flightClient.getFlightById(booking.getFlightId());
 
         List<SeatInstanceResponse> seatInstanceResponses=seatClient.getAllByIds(booking.getSeatInstanceIds());
-        FlightInstanceResponse flightInstanceResponse=flightClient.getFlightInstanceResponse(booking.getFlightInstanceId());
+        FlightInstanceResponse flightInstanceResponse=flightClient.getFlightInstanceById(booking.getFlightInstanceId());
 
 
         System.out.println("seat instances -------- "+seatInstanceResponses.size());

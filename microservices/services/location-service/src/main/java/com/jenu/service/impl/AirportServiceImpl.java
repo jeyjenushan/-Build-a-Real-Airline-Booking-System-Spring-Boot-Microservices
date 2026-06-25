@@ -13,6 +13,9 @@ import com.jenu.service.AirportService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,6 +82,7 @@ public class AirportServiceImpl implements AirportService {
     }
 
     @Override
+    @Cacheable(cacheNames = "airports", key = "#id")
     public AirportResponse getAirportById(Long id) throws Exception {
         return AirportMapper.ConvertToAirportResponse(airportRepository.findById(id).orElseThrow(
                 ()->new EntityNotFoundException("Airport not exists with provided id")
@@ -86,11 +90,17 @@ public class AirportServiceImpl implements AirportService {
     }
 
     @Override
+    @Cacheable(cacheNames = "allAirports")
     public List<AirportResponse> getAllAirports() {
         return airportRepository.findAll().stream().map(AirportMapper::ConvertToAirportResponse).collect(Collectors.toList());
     }
 
     @Override
+    @Caching(evict={
+            @CacheEvict(cacheNames = "airports", key = "#id"),
+            @CacheEvict(cacheNames = "allAirports", allEntries = true),
+            @CacheEvict(cacheNames = "airportsByCity", allEntries = true)
+    })
     public AirportResponse updateAirport(Long id, AirportRequest airportRequest) throws AirportException,CityException {
         Airport existingAirport = airportRepository.findById(id).orElseThrow(
                 ()->new AirportException("airport not exists with id"+id)
@@ -111,6 +121,11 @@ public class AirportServiceImpl implements AirportService {
     }
 
     @Override
+    @Caching(evict={
+            @CacheEvict(cacheNames = "airports", key = "#id"),
+            @CacheEvict(cacheNames = "allAirports", allEntries = true),
+            @CacheEvict(cacheNames = "airportsByCity", allEntries = true)
+    })
     public void deleteAirport(Long id) throws AirportException {
         Airport airport=airportRepository.findById(id).orElseThrow(
                 ()->new AirportException("Airport not exists with provided id")
@@ -120,6 +135,7 @@ public class AirportServiceImpl implements AirportService {
     }
 
     @Override
+    @Cacheable(cacheNames = "airportsByCity", key = "#cityId")
     public List<AirportResponse> getAirportsByCityId(Long cityId) {
         return airportRepository.findByCityId(cityId).stream().map(AirportMapper::ConvertToAirportResponse).collect(Collectors.toList());
     }

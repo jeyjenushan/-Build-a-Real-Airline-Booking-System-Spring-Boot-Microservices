@@ -2,6 +2,8 @@ package com.jenu.service.impl;
 
 import com.jenu.client.AirlineClient;
 import com.jenu.client.LocationClient;
+import com.jenu.event.FlightInstanceCreatedEvent;
+import com.jenu.event.FlightInstanceEventProducer;
 import com.jenu.exception.AirportException;
 import com.jenu.mapper.FlightInstanceMapper;
 import com.jenu.model.Flight;
@@ -35,6 +37,7 @@ public class FlightInstanceServiceImpl implements FlightInstanceService {
     private final FlightRepository flightRepository;
     private final AirlineClient airlineClient;
     private final LocationClient locationClient;
+    private final FlightInstanceEventProducer flightInstanceEventProducer;
 
     @Override
     @Transactional
@@ -54,8 +57,17 @@ public class FlightInstanceServiceImpl implements FlightInstanceService {
 
         FlightInstance savedFlightInstance=flightInstanceRepository.save(flightInstance);
 
-        //todo : create seat instances
+
         //Publish kafka event, seat service consume that and creates seat instances
+        FlightInstanceCreatedEvent flightInstanceCreatedEvent=FlightInstanceCreatedEvent
+                .builder()
+                .flightInstanceId(savedFlightInstance.getId())
+                .aircraftId(flightInstance.getFlight().getAircraftId())
+                .flightId(flight.getId())
+                .build();
+
+        flightInstanceEventProducer.sendFlightInstanceCreatedEvent(flightInstanceCreatedEvent);
+
 
         return convertFlightInstanceResponse(savedFlightInstance);
     }

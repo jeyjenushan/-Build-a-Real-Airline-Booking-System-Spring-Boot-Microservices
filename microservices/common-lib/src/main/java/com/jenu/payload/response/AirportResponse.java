@@ -25,4 +25,5 @@ public class AirportResponse {
     private CityResponse cityResponse;
     private GeoCode geoCode;
     private Analytics analytics;
+
 }

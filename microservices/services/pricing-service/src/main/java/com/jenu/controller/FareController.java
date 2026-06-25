@@ -109,7 +109,7 @@ public class FareController {
         return ResponseEntity.ok(res);
     }
 
-    /*
+
     @GetMapping("/lowest/flight/{flightId}/cabin-class/{cabinClassId}")
     public ResponseEntity<FareResponse> getLowestFareForFlightAndCabinClass(
             @PathVariable Long flightId,
@@ -119,7 +119,7 @@ public class FareController {
         );
     }
 
-     */
+
 
 
 }

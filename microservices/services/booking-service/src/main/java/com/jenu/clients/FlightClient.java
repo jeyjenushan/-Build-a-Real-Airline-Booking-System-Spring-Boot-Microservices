@@ -19,7 +19,7 @@ public interface FlightClient
     FlightResponse getFlightById(@PathVariable Long id);
 
     @GetMapping("/api/flight-instances/{id}")
-    FlightInstanceResponse getFlightInstanceResponse(@PathVariable Long id);
+    FlightInstanceResponse getFlightInstanceById(@PathVariable Long id);
 
     @PostMapping("/api/flights/batch")
     Map<Long, FlightResponse> getFlightsByIds(@RequestBody List<Long> ids);

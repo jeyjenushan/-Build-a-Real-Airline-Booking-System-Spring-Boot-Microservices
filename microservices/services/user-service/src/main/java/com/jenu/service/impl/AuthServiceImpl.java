@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
         if (existUser != null) {
             throw  new UserException("email already Registered");
         }
-        if(userDto.getUserRole()== UserRole.ROLE_SYSTEM_ADMIN){
+        if(Objects.equals(userDto.getUserRole(), "ROLE_SYSTEM_ADMIN")){
             throw  new UserException("You cannot register a system admin");
         }
 
@@ -44,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .phoneNumber(String.valueOf(userDto.getPhoneNumber()))
                 .fullName(userDto.getFullName())
-                .role(userDto.getUserRole())
+                .role(UserRole.valueOf(userDto.getUserRole()))
                 .lastLogin(LocalDateTime.now())
                 .build();
 
